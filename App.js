@@ -25,7 +25,8 @@
              }}
              style = {styles.preview}
              type={RNCamera.Constants.Type.back}
-             flashMode={RNCamera.Constants.FlashMode.on}
+             autoFocus={RNCamera.Constants.AutoFocus.on}
+             flashMode={RNCamera.Constants.FlashMode.auto}
              permissionDialogTitle={'Permission to use camera'}
              permissionDialogMessage={'We need your permission to use your camera phone'}
          />
@@ -45,7 +46,7 @@
      if (this.camera) {
        const options = { quality: 0.5, base64: true };
        const data = await this.camera.takePictureAsync(options)
-       console.log(data.uri);
+       console.log(data.base64);
      }
    };
  }
