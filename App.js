@@ -3,9 +3,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
+import cropImage, { BOX_WIDTH, BOX_HEIGHT } from './image-processing';
 import getVision from './request';
 
 const styles = StyleSheet.create({
@@ -34,36 +35,64 @@ export default class BadInstagramCloneApp extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      response: {},
+      results: {},
     };
   }
 
-  takePicture = async function() {
+  getResult = base64 => {
+    getVision(base64, results => {
+      this.setState({ results });
+    });
+  };
+
+  takePicture = async () => {
     if (!this.camera) {
       return;
     }
-    const options = { quality: 0.5, base64: true };
+    const options = {
+      quality: 0.6,
+      base64: true,
+    };
     const data = await this.camera.takePictureAsync(options);
-    console.log(data.base64);
-    const response = await getVision(data.base64);
-    this.setState({response});
+    cropImage(data, this.getResult);
   };
 
   render() {
-    console.log(this.state.response)
+    console.log(this.state.results)
     return (
       <View style={styles.container}>
-        <RNCamera
-          ref={ref => {
-            this.camera = ref;
-          }}
-          style = {styles.preview}
-          type={RNCamera.Constants.Type.back}
-          autoFocus={RNCamera.Constants.AutoFocus.on}
-          flashMode={RNCamera.Constants.FlashMode.auto}
-          permissionDialogTitle={'Permission to use camera'}
-          permissionDialogMessage={'We need your permission to use your camera phone'}
-        />
+        <View style={{
+          flex: 1,
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+        }}>
+          <View style={{flex: 1}}>
+            <RNCamera
+              ref={ref => {
+                this.camera = ref;
+              }}
+              style = {styles.preview}
+              type={RNCamera.Constants.Type.back}
+              autoFocus={RNCamera.Constants.AutoFocus.on}
+              flashMode={RNCamera.Constants.FlashMode.auto}
+              permissionDialogTitle={'Permission to use camera'}
+              permissionDialogMessage={'We need your permission to use your camera phone'}
+            />
+          </View>
+          <View style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: [
+              {translateX: BOX_WIDTH * -0.5},
+              {translateY: BOX_HEIGHT * -0.5},
+            ],
+            width: BOX_WIDTH,
+            height: BOX_HEIGHT,
+            backgroundColor: 'rgba(255, 255, 255, 0.3)'
+          }}></View>
+        </View>
         <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
           <TouchableOpacity
             onPress={this.takePicture.bind(this)}
