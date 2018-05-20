@@ -1,9 +1,3 @@
-/**
-* Sample React Native App
-* https://github.com/facebook/react-native
-* @flow
-*/
-
 import React from 'react';
 import {
   StyleSheet,
@@ -51,13 +45,12 @@ export default class BadInstagramCloneApp extends React.Component {
     const options = { quality: 0.5, base64: true };
     const data = await this.camera.takePictureAsync(options);
     console.log(data.base64);
-    // const response = await
-    getVision(data.base64);
-    //this.setState({response});
+    const response = await getVision(data.base64);
+    this.setState({response});
   };
 
   render() {
-    //console.log(this.state.response)
+    console.log(this.state.response)
     return (
       <View style={styles.container}>
         <RNCamera
