@@ -6,8 +6,11 @@ import {
   View,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import cropImage, { BOX_WIDTH, BOX_HEIGHT } from './image-processing';
-import getVision from './request';
+import idx from 'idx';
+
+import Tips from './tips';
+import cropImage, { BOX_WIDTH, BOX_HEIGHT } from '../image-processor';
+import getVision from '../request';
 
 const styles = StyleSheet.create({
   container: {
@@ -28,20 +31,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignSelf: 'center',
     margin: 20
+  },
+  focusBox: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: [
+      {translateX: BOX_WIDTH * -0.5},
+      {translateY: BOX_HEIGHT * -0.5},
+    ],
+    width: BOX_WIDTH,
+    height: BOX_HEIGHT,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)'
   }
 });
 
-export default class BadInstagramCloneApp extends React.Component {
+export default class WhatToTip extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      results: {},
+      amount: null,
     };
   }
 
   getResult = base64 => {
     getVision(base64, results => {
-      this.setState({ results });
+      const amount = idx(results, _ => _.fullTextAnnotation.text);
+      this.setState({ amount });
     });
   };
 
@@ -58,7 +74,8 @@ export default class BadInstagramCloneApp extends React.Component {
   };
 
   render() {
-    console.log(this.state.results)
+    console.log(this.state.amount)
+
     return (
       <View style={styles.container}>
         <View style={{
@@ -80,18 +97,17 @@ export default class BadInstagramCloneApp extends React.Component {
               permissionDialogMessage={'We need your permission to use your camera phone'}
             />
           </View>
-          <View style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: [
-              {translateX: BOX_WIDTH * -0.5},
-              {translateY: BOX_HEIGHT * -0.5},
-            ],
-            width: BOX_WIDTH,
-            height: BOX_HEIGHT,
-            backgroundColor: 'rgba(255, 255, 255, 0.3)'
-          }}></View>
+          <View style={styles.focusBox}></View>
+          {this.state.amount !== null && (
+            <View style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              width: '100%'
+            }}>
+              <Tips amount={this.state.amount}/>
+            </View>
+          )}
         </View>
         <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
           <TouchableOpacity
