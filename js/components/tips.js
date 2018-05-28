@@ -98,7 +98,7 @@ export default class Tips extends React.Component {
   updateSliptWith = isIncrement => () => {
     const { splitWith } = this.state;
     this.setState({
-      splitWith: splitWith + ( isIncrement ? 1 : - 1 ),
+      splitWith: splitWith + (isIncrement ? 1 : - 1),
     });
   };
 

@@ -4,7 +4,7 @@ const MOTION_SHREHOLD = 1.4;
 const MOTION_DETECT_INTERVAL = 200;
 const STILL_FOR = 6;
 
-const isBelowShrehold = ( a, b ) => Math.abs( a - b ) < MOTION_SHREHOLD;
+const isBelowShrehold = (a, b) => Math.abs(a - b) < MOTION_SHREHOLD;
 
 class MovementDetector {
   constructor() {

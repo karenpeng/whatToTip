@@ -10,15 +10,17 @@ import idx from 'idx';
 
 import Tips from './tips';
 import FocusBox from './focus-box';
+import { inputIsValid } from '../money-calculator';
+import accelerationObservable, {registerAccelerometerEvent} from '../accelerometer';
 import cropImageAndGetBase64 from '../image-processor';
 import getVision from '../request';
-import accelerationObservable, {registerAccelerometerEvent} from '../accelerometer';
 
 export const BOX_WIDTH = 100;
 export const BOX_HEIGHT = 50;
 export const BOX_LEFT = 0.7;
 export const BOX_TOP = 0.5;
-const DISABLE_CAMERA_TIMEPUT = 9000;
+const DISABLE_CAMERA_TIMEPUT = 5000;
+const ENABLE_CAMERA_TIMEPUT = 2000;
 
 const styles = StyleSheet.create({
   container: {
@@ -38,12 +40,16 @@ const styles = StyleSheet.create({
   },
   retake : {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    padding: 15,
-    alignSelf: 'center',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+  },
+  retakeReminder: {
+    color: 'white',
+    fontSize: 14,
+    paddingTop: 6,
   },
 });
 
@@ -52,30 +58,37 @@ export default class WhatToTip extends React.Component {
     super(props);
     this.state = {
       amount: null,
-      cameraEnabled: false,
+      cameraInited: false,
+      autoCaptureEnabled: true,
     };
   }
 
   componentDidMount() {
-    registerAccelerometerEvent(this.takePicture);
-    setTimeout(this.enableCamera, DISABLE_CAMERA_TIMEPUT);
+    registerAccelerometerEvent(this.autoTakePicture);
+    setTimeout(() => {
+      this.setState({
+        cameraInited: true,
+      });
+    }, DISABLE_CAMERA_TIMEPUT);
   }
 
-  disableCamera = () => {
+  disableAutoCapture = () => {
     this.setState({
-      cameraEnabled: false,
+      autoCaptureEnabled: false,
     });
-  }
+  };
 
-  enableCamera = () => {
+  enableAutoCapture = () => {
     this.setState({
-      cameraEnabled: true,
+      autoCaptureEnabled: true,
     });
-  }
+  };
 
   handleResult = amount => {
-    if (!amount) {
-    //  this.enableCamera();
+    if (!inputIsValid(amount)) {
+      setTimeout(
+        this.enableAutoCapture,
+        ENABLE_CAMERA_TIMEPUT);
     } else {
       this.setState({ amount });
     }
@@ -85,8 +98,8 @@ export default class WhatToTip extends React.Component {
     getVision(base64, this.handleResult);
   };
 
-  takePicture = async () => {
-    if (!this.state.cameraEnabled || !this.camera) {
+  autoTakePicture = async () => {
+    if (!this.camera || !this.state.cameraInited || !this.state.autoCaptureEnabled) {
       return;
     }
     const options = {
@@ -104,10 +117,18 @@ export default class WhatToTip extends React.Component {
       },
       this.callGetVisionAndHandleResult);
     console.log('~~~~~~~~~~~~~~~~~~~take picture!')
-    this.disableCamera();
+    this.disableAutoCapture();
+  };
+
+  reTakePicture = async () => {
+    this.enableAutoCapture();
+    this.setState({
+      amount: null,
+    });
   };
 
   render() {
+    const { cameraInited, autoCaptureEnabled, amount } = this.state;
     return (
       <View style={styles.container}>
         <View style={{flex: 1}}>
@@ -123,20 +144,24 @@ export default class WhatToTip extends React.Component {
             permissionDialogMessage={'We need your permission to use your camera phone'}
           />
         </View>
-        <FocusBox
-          w={BOX_WIDTH}
-          h={BOX_HEIGHT}
-          l={BOX_LEFT}
-          t={BOX_TOP}
-        />
-        {typeof this.state.amount === 'string' && !this.state.cameraEnabled && (
+        {cameraInited &&
+          <FocusBox
+            w={BOX_WIDTH}
+            h={BOX_HEIGHT}
+            l={BOX_LEFT}
+            t={BOX_TOP}
+          />
+        }
+        {typeof amount === 'string' && !autoCaptureEnabled && (
           <View style={styles.tip}>
             <Tips amount={this.state.amount}/>
           </View>
+        )}
+        {typeof amount === 'string' && !autoCaptureEnabled && (
           <TouchableOpacity
-            onPress={this.enableCamera}
-            style = {styles.retake}>
-            <Text style={{fontSize: 12}}> Re-take </Text>
+            onPress={this.reTakePicture}
+            style={styles.retake}>
+            <Text style={styles.retakeReminder}> Tap anywhere to re-scan </Text>
           </TouchableOpacity>
         )}
       </View>
