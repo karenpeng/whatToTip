@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import idx from 'idx';
 
-import {calculateTips, calculateSplit} from '../calculator';
+import {calculateTips, calculateSplit} from '../money-calculator';
 
 const TIP_OPTIONS = ['15%', '18%', '20%'];
 

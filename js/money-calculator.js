@@ -1,4 +1,11 @@
-export const normalizeAmount = amount => amount && parseFloat(amount.replace('$', ''));
+export inputIsValid = amount => {
+  if (amount === undefined || amount === null || isNaN(parseFloat(amount))) {
+    return false;
+  }
+  return true;
+}
+
+const normalizeAmount = amount => parseFloat(amount.replace('$', ''));
 
 const calculateDollar = (amount, rate) => (amount * rate).toFixed(2);
 

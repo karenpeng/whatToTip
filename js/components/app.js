@@ -9,41 +9,42 @@ import { RNCamera } from 'react-native-camera';
 import idx from 'idx';
 
 import Tips from './tips';
-import cropImage, { BOX_WIDTH, BOX_HEIGHT } from '../image-processor';
+import FocusBox from './focus-box';
+import cropImageAndGetBase64 from '../image-processor';
 import getVision from '../request';
+import accelerationObservable, {registerAccelerometerEvent} from '../accelerometer';
+
+export const BOX_WIDTH = 100;
+export const BOX_HEIGHT = 50;
+export const BOX_LEFT = 0.7;
+export const BOX_TOP = 0.5;
+const DISABLE_CAMERA_TIMEPUT = 9000;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: 'black'
+    position: 'relative',
+    width: '100%',
+    height: '100%',
   },
   preview: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center'
+    backgroundColor: 'black',
   },
-  capture: {
-    flex: 0,
+  tip: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+  },
+  retake : {
+    position: 'absolute',
+    top: 0,
+    right: 0,
     backgroundColor: '#fff',
     borderRadius: 5,
     padding: 15,
-    paddingHorizontal: 20,
     alignSelf: 'center',
-    margin: 20
   },
-  focusBox: {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
-    transform: [
-      {translateX: BOX_WIDTH * -0.5},
-      {translateY: BOX_HEIGHT * -0.5},
-    ],
-    width: BOX_WIDTH,
-    height: BOX_HEIGHT,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)'
-  }
 });
 
 export default class WhatToTip extends React.Component {
@@ -51,18 +52,41 @@ export default class WhatToTip extends React.Component {
     super(props);
     this.state = {
       amount: null,
+      cameraEnabled: false,
     };
   }
 
-  getResult = base64 => {
-    getVision(base64, results => {
-      const amount = idx(results, _ => _.fullTextAnnotation.text);
-      this.setState({ amount });
+  componentDidMount() {
+    registerAccelerometerEvent(this.takePicture);
+    setTimeout(this.enableCamera, DISABLE_CAMERA_TIMEPUT);
+  }
+
+  disableCamera = () => {
+    this.setState({
+      cameraEnabled: false,
     });
+  }
+
+  enableCamera = () => {
+    this.setState({
+      cameraEnabled: true,
+    });
+  }
+
+  handleResult = amount => {
+    if (!amount) {
+    //  this.enableCamera();
+    } else {
+      this.setState({ amount });
+    }
+  };
+
+  callGetVisionAndHandleResult = base64 => {
+    getVision(base64, this.handleResult);
   };
 
   takePicture = async () => {
-    if (!this.camera) {
+    if (!this.state.cameraEnabled || !this.camera) {
       return;
     }
     const options = {
@@ -70,53 +94,51 @@ export default class WhatToTip extends React.Component {
       base64: true,
     };
     const data = await this.camera.takePictureAsync(options);
-    cropImage(data, this.getResult);
+    cropImageAndGetBase64(
+      data,
+      {
+        BOX_WIDTH,
+        BOX_HEIGHT,
+        BOX_LEFT,
+        BOX_TOP
+      },
+      this.callGetVisionAndHandleResult);
+    console.log('~~~~~~~~~~~~~~~~~~~take picture!')
+    this.disableCamera();
   };
 
   render() {
-    console.log(this.state.amount)
-
     return (
       <View style={styles.container}>
-        <View style={{
-          flex: 1,
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-        }}>
-          <View style={{flex: 1}}>
-            <RNCamera
-              ref={ref => {
-                this.camera = ref;
-              }}
-              style = {styles.preview}
-              type={RNCamera.Constants.Type.back}
-              autoFocus={RNCamera.Constants.AutoFocus.on}
-              flashMode={RNCamera.Constants.FlashMode.auto}
-              permissionDialogTitle={'Permission to use camera'}
-              permissionDialogMessage={'We need your permission to use your camera phone'}
-            />
+        <View style={{flex: 1}}>
+          <RNCamera
+            ref={ref => {
+              this.camera = ref;
+            }}
+            style = {styles.preview}
+            type={RNCamera.Constants.Type.back}
+            autoFocus={RNCamera.Constants.AutoFocus.on}
+            flashMode={RNCamera.Constants.FlashMode.auto}
+            permissionDialogTitle={'Permission to use camera'}
+            permissionDialogMessage={'We need your permission to use your camera phone'}
+          />
+        </View>
+        <FocusBox
+          w={BOX_WIDTH}
+          h={BOX_HEIGHT}
+          l={BOX_LEFT}
+          t={BOX_TOP}
+        />
+        {typeof this.state.amount === 'string' && !this.state.cameraEnabled && (
+          <View style={styles.tip}>
+            <Tips amount={this.state.amount}/>
           </View>
-          <View style={styles.focusBox}></View>
-          {this.state.amount !== null && (
-            <View style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              width: '100%'
-            }}>
-              <Tips amount={this.state.amount}/>
-            </View>
-          )}
-        </View>
-        <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
           <TouchableOpacity
-            onPress={this.takePicture.bind(this)}
-            style = {styles.capture}
-          >
-            <Text style={{fontSize: 14}}> SNAP </Text>
+            onPress={this.enableCamera}
+            style = {styles.retake}>
+            <Text style={{fontSize: 12}}> Re-take </Text>
           </TouchableOpacity>
-        </View>
+        )}
       </View>
     );
   }

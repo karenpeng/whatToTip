@@ -4,8 +4,6 @@ import {
   PixelRatio
 } from 'react-native';
 
-export const BOX_WIDTH = 140;
-export const BOX_HEIGHT = 60;
 const SCALE_FACTOR = 2;
 
 const deleteImage = (uri) => {
@@ -16,26 +14,27 @@ const getBase64 = (uri, cb) => {
   ImageStore.getBase64ForTag(
     uri,
     base64 => {
-      cb(base64);
+      cb && cb(base64);
       deleteImage(uri);
     },
     error => console.log(error.message)
   )
 };
 
-const cropImage = (data, cb) => {
+const cropImageAndGetBase64 = (data, boxData, cb) => {
   const { width, height, uri } = data;
   if (!Number.isInteger(width) || !Number.isInteger(height) || typeof uri !== 'string' || !uri.length) {
     return;
   }
+  const { BOX_WIDTH, BOX_HEIGHT, BOX_LEFT, BOX_TOP } = boxData;
   const w = Math.round(PixelRatio.getPixelSizeForLayoutSize(BOX_WIDTH) * SCALE_FACTOR);
   const h = Math.round(PixelRatio.getPixelSizeForLayoutSize(BOX_HEIGHT) * SCALE_FACTOR);
   ImageEditor.cropImage(
     uri,
     {
       offset: {
-        x: (width - w) * 0.5,
-        y: (height - h) * 0.5,
+        x: width * BOX_LEFT,
+        y: height * BOX_TOP,
       },
       size: {
         width: w,
@@ -50,4 +49,4 @@ const cropImage = (data, cb) => {
   )
 };
 
-export default cropImage;
+export default cropImageAndGetBase64;

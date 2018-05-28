@@ -29,8 +29,8 @@ const getVision = (base64, cb) => {
  fetch(apiUrl, options)
  .then((response) => response.json())
  .then((responseJson) => {
-   const results = idx(responseJson, _ => _.responses[0]);
-   cb(results);
+   const text = idx(responseJson, _ => _.responses[0].fullTextAnnotation.text);
+   cb && cb(text);
  })
  .catch((error) => {
    console.error(error);
