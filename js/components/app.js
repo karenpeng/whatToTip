@@ -19,8 +19,8 @@ import getVision from '../request';
 
 export const SCANNER_WIDTH = 100;
 export const SCANNER_HEIGHT = 50;
-export const SCANNER_LEFT = 0.7;
-export const SCANNER_TOP = 0.4;
+export const SCANNER_LEFT = 0.68;
+export const SCANNER_TOP = 0.32;
 const ENABLE_CAMERA_TIMEOUT = 2000;
 const CAMERA_OPTIONS = {
   quality: 0.6,
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   tapContentReminder: {
     color: 'white',
     fontSize: 14,
-    paddingTop: 6,
+    marginTop: 10,
   },
 });
 
