@@ -63,7 +63,7 @@ export default class WhatToTip extends React.Component {
   }
 
   componentDidMount() {
-    //registerAccelerometerEvent(this.autoTakePicture);
+    registerAccelerometerEvent(this.autoTakePicture);
     setTimeout(this.enableAutoCapture, 5000);
   }
 
@@ -81,7 +81,6 @@ export default class WhatToTip extends React.Component {
 
   callGetVisionAndHandleResult = base64 => {
     getVision(base64, this.handleResult);
-    // this.handleResult('$332.70')
   };
 
   handleResult = amount => {

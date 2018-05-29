@@ -34,9 +34,9 @@ const styles = StyleSheet.create({
     fontSize: 14
   },
   counter: {
-    borderRadius: 18,
+    borderRadius: 10,
     height: 46,
-    width: 46,
+    width: 60,
     padding: 6,
     margin: 4,
     backgroundColor: 'white',
