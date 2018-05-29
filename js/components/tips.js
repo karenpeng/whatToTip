@@ -12,13 +12,8 @@ import {calculateTips, calculateSplit} from '../money-calculator';
 const TIP_OPTIONS = ['15%', '18%', '20%'];
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: 'black'
-  },
   selectedOption: {
-    borderRadius: 20,
+    borderRadius: 10,
     padding: 15,
     margin: 3,
     alignItems: 'center',
@@ -29,7 +24,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   nonSelectedOption: {
-    borderRadius: 20,
+    borderRadius: 10,
     padding: 15,
     margin: 3,
     alignItems: 'center',
@@ -38,14 +33,17 @@ const styles = StyleSheet.create({
   nonSelectedOptionText: {
     fontSize: 14
   },
-  incrementor: {
-    borderRadius: 30,
-    padding: 10,
-    margin: 6,
+  counter: {
+    borderRadius: 18,
+    height: 46,
+    width: 46,
+    padding: 6,
+    margin: 4,
     backgroundColor: 'white',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  incrementorText: {
+  counterText: {
     fontSize: 14,
   },
 });
@@ -104,58 +102,65 @@ export default class Tips extends React.Component {
 
   render() {
     const results = calculateTips(this.props.amount);
-    const { tipOption, splitWith } = this.state;
+    const { tipOption, splitWith, slideAnim } = this.state;
     return (
-      <View style={{
-        flex: 0,
-        flexDirection: 'row',
-      }}>
+      <View>
         <View style={{
-          flex: 0.5,
+          flex: 1,
           padding: 4,
-          backgroundColor: 'rgba(255, 255, 255, 0.7)'
         }}>
-          <Text>Tip%</Text>
+          <Text style={{margin: 4}}>Tip%</Text>
           <View style={{flexDirection: 'row'}}>
             {this.renderTipOptions()}
           </View>
-          <Text># ppl split</Text>
-          <View style={{flexDirection: 'row'}}>
-            <View style={{flex: 1/3}}>
+          <Text style={{margin: 4}}># People split</Text>
+          <View style={{
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <View style={{flex: 2/9, alignItems: 'flex-start'}}>
               {renderButton(
                 this.updateSliptWith(false),
                 '-',
-                styles.incrementor,
-                styles.incrementorText,
+                styles.counter,
+                styles.counterText,
                 splitWith < 2
               )}
             </View>
             <View style={{
-              flex: 1/3,
+              flex: 2/9,
               alignItems: 'center',
-              justifyContent: 'center',
             }}>
-              <Text style={styles.incrementorText}>{splitWith > 1 ? splitWith : ''}</Text>
+              <Text style={styles.counterText}>{splitWith > 1 ? splitWith : '0'}</Text>
             </View>
-            <View style={{flex: 1/3}}>
+            <View style={{flex: 2/9, alignItems: 'flex-end'}}>
               {renderButton(
                 this.updateSliptWith(true),
                 '+',
-                styles.incrementor,
-                styles.incrementorText
+                styles.counter,
+                styles.counterText
               )}
+            </View>
+            <View style={{
+              flex: 1/3,
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+            }}>
+              {splitWith > 1 &&
+                <Text style={{fontSize: 20, fontWeight: 'bold', padding: 4}}>
+                  {`$${calculateSplit(results[tipOption].total, splitWith)} each`}
+                </Text>}
             </View>
           </View>
         </View>
         <View style={{
-          flex: 0.5,
-          padding: 4,
+          flex: 1,
+          padding: 6,
           backgroundColor: 'white',
         }}>
           {Object.entries(results[tipOption]).map(result => renderDollarItem(result))}
-          {splitWith > 1 &&
-            renderDollarItem(['per person', calculateSplit(results[tipOption].total, splitWith)])
-          }
         </View>
       </View>
     );

@@ -4,23 +4,29 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Vibration,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import idx from 'idx';
 
 import Tips from './tips';
-import FocusBox from './focus-box';
+import Scanner from './scanner';
+import SlideUpAnimation from './animations/slide-up-animation';
 import { inputIsValid } from '../money-calculator';
 import accelerationObservable, {registerAccelerometerEvent} from '../accelerometer';
 import cropImageAndGetBase64 from '../image-processor';
 import getVision from '../request';
 
-export const BOX_WIDTH = 100;
-export const BOX_HEIGHT = 50;
-export const BOX_LEFT = 0.7;
-export const BOX_TOP = 0.5;
-const DISABLE_CAMERA_TIMEPUT = 5000;
-const ENABLE_CAMERA_TIMEPUT = 2000;
+export const SCANNER_WIDTH = 100;
+export const SCANNER_HEIGHT = 50;
+export const SCANNER_LEFT = 0.7;
+export const SCANNER_TOP = 0.4;
+const ENABLE_CAMERA_TIMEOUT = 2000;
+const CAMERA_OPTIONS = {
+  quality: 0.6,
+  base64: false,
+};
+const VIBRATION_DURATION = 100;
 
 const styles = StyleSheet.create({
   container: {
@@ -32,13 +38,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'black',
   },
-  tip: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-  },
-  retake : {
+  tapContent : {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
   },
-  retakeReminder: {
+  tapContentReminder: {
     color: 'white',
     fontSize: 14,
     paddingTop: 6,
@@ -57,19 +57,14 @@ export default class WhatToTip extends React.Component {
   constructor(props){
     super(props);
     this.state = {
+      autoCaptureEnabled: false,
       amount: null,
-      cameraInited: false,
-      autoCaptureEnabled: true,
     };
   }
 
   componentDidMount() {
-    registerAccelerometerEvent(this.autoTakePicture);
-    setTimeout(() => {
-      this.setState({
-        cameraInited: true,
-      });
-    }, DISABLE_CAMERA_TIMEPUT);
+    //registerAccelerometerEvent(this.autoTakePicture);
+    setTimeout(this.enableAutoCapture, 5000);
   }
 
   disableAutoCapture = () => {
@@ -84,51 +79,51 @@ export default class WhatToTip extends React.Component {
     });
   };
 
-  handleResult = amount => {
-    if (!inputIsValid(amount)) {
-      setTimeout(
-        this.enableAutoCapture,
-        ENABLE_CAMERA_TIMEPUT);
-    } else {
-      this.setState({ amount });
-    }
-  };
-
   callGetVisionAndHandleResult = base64 => {
     getVision(base64, this.handleResult);
+    // this.handleResult('$332.70')
+  };
+
+  handleResult = amount => {
+    if (!inputIsValid(amount)) {
+      setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
+    } else {
+      this.setState({ amount });
+      Vibration.vibrate(VIBRATION_DURATION);
+    }
   };
 
   autoTakePicture = async () => {
-    if (!this.camera || !this.state.cameraInited || !this.state.autoCaptureEnabled) {
+    if (!this.camera || !this.state.autoCaptureEnabled) {
       return;
     }
-    const options = {
-      quality: 0.6,
-      base64: true,
-    };
-    const data = await this.camera.takePictureAsync(options);
+    this.disableAutoCapture();
+    console.log('~~~~~~~~~~~~~~~~~~~take picture!')
+    const data = await this.camera.takePictureAsync(CAMERA_OPTIONS);
     cropImageAndGetBase64(
       data,
       {
-        BOX_WIDTH,
-        BOX_HEIGHT,
-        BOX_LEFT,
-        BOX_TOP
+        SCANNER_WIDTH,
+        SCANNER_HEIGHT,
+        SCANNER_LEFT,
+        SCANNER_TOP
       },
       this.callGetVisionAndHandleResult);
-    console.log('~~~~~~~~~~~~~~~~~~~take picture!')
-    this.disableAutoCapture();
   };
 
-  reTakePicture = async () => {
-    this.enableAutoCapture();
+  handleTap = () => {
+    const { autoCaptureEnabled, amount } = this.state;
+    if (autoCaptureEnabled && amount === null) {
+      return;
+    }
+    setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
     this.setState({
       amount: null,
     });
   };
 
   render() {
-    const { cameraInited, autoCaptureEnabled, amount } = this.state;
+    const { autoCaptureEnabled, amount } = this.state;
     return (
       <View style={styles.container}>
         <View style={{flex: 1}}>
@@ -144,26 +139,30 @@ export default class WhatToTip extends React.Component {
             permissionDialogMessage={'We need your permission to use your camera phone'}
           />
         </View>
-        {cameraInited &&
-          <FocusBox
-            w={BOX_WIDTH}
-            h={BOX_HEIGHT}
-            l={BOX_LEFT}
-            t={BOX_TOP}
-          />
-        }
-        {typeof amount === 'string' && !autoCaptureEnabled && (
-          <View style={styles.tip}>
+        <TouchableOpacity
+          onPress={this.handleTap}
+          style={styles.tapContent}>
+          <Text style={styles.tapContentReminder}>
+           {amount === null ?
+             'Scanning payment...' : 'Tap anywhere to re-scan'}
+          </Text>
+        </TouchableOpacity>
+        <Scanner
+          w={SCANNER_WIDTH}
+          h={SCANNER_HEIGHT}
+          l={SCANNER_LEFT}
+          t={SCANNER_TOP}
+          isScanning={amount === null}
+        />
+        {!autoCaptureEnabled && amount !== null &&
+          <SlideUpAnimation style={{
+            left: 0,
+            width: '100%',
+            backgroundColor: 'rgba(250, 250, 255, 0.6)'
+          }}>
             <Tips amount={this.state.amount}/>
-          </View>
-        )}
-        {typeof amount === 'string' && !autoCaptureEnabled && (
-          <TouchableOpacity
-            onPress={this.reTakePicture}
-            style={styles.retake}>
-            <Text style={styles.retakeReminder}> Tap anywhere to re-scan </Text>
-          </TouchableOpacity>
-        )}
+          </SlideUpAnimation>
+        }
       </View>
     );
   }

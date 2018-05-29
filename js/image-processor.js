@@ -26,15 +26,15 @@ const cropImageAndGetBase64 = (data, boxData, cb) => {
   if (!Number.isInteger(width) || !Number.isInteger(height) || typeof uri !== 'string' || !uri.length) {
     return;
   }
-  const { BOX_WIDTH, BOX_HEIGHT, BOX_LEFT, BOX_TOP } = boxData;
-  const w = Math.round(PixelRatio.getPixelSizeForLayoutSize(BOX_WIDTH) * SCALE_FACTOR);
-  const h = Math.round(PixelRatio.getPixelSizeForLayoutSize(BOX_HEIGHT) * SCALE_FACTOR);
+  const { SCANNER_WIDTH, SCANNER_HEIGHT, SCANNER_LEFT, SCANNER_TOP } = boxData;
+  const w = Math.round(PixelRatio.getPixelSizeForLayoutSize(SCANNER_WIDTH) * SCALE_FACTOR);
+  const h = Math.round(PixelRatio.getPixelSizeForLayoutSize(SCANNER_HEIGHT) * SCALE_FACTOR);
   ImageEditor.cropImage(
     uri,
     {
       offset: {
-        x: width * BOX_LEFT,
-        y: height * BOX_TOP,
+        x: width * SCANNER_LEFT,
+        y: height * SCANNER_TOP,
       },
       size: {
         width: w,
