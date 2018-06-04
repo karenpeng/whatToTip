@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   tapContentReminder: {
     color: 'white',
     fontSize: 16,
-    marginTop: 12,
+    marginTop: 16,
   },
 });
 
