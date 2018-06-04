@@ -5,6 +5,7 @@ import {
   View,
   Image
 } from 'react-native';
+
 import UpAndDownAnimation from './animations/up-and-down-animation';
 
 const createStyle = data => {

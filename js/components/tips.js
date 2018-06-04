@@ -59,7 +59,7 @@ const renderButton = (onPress, text, touchableStype, textStyle, disabled) => (
 );
 
 const renderDollarItem = item => (
-  <View style={{flexDirection: 'row', margin: 4}}>
+  <View style={{flexDirection: 'row', margin: 4}} key={item[0]}>
     <View>
       <Text style={{fontSize: 16}}>{`${item[0]}`.toUpperCase()}</Text>
     </View>
@@ -102,7 +102,7 @@ export default class Tips extends React.Component {
 
   render() {
     const results = calculateTips(this.props.amount);
-    const { tipOption, splitWith, slideAnim } = this.state;
+    const { tipOption, splitWith } = this.state;
     return (
       <View>
         <View style={{

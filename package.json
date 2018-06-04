@@ -12,7 +12,8 @@
     "react": "16.3.1",
     "react-native": "0.55.3",
     "react-native-camera": "^1.1.2",
-    "react-native-sensors": "^3.0.0"
+    "react-native-sensors": "^3.0.0",
+    "react-native-transitiongroup": "^1.1.0"
   },
   "devDependencies": {
     "babel-eslint": "8",

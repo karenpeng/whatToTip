@@ -7,6 +7,7 @@ import {
   Vibration,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
+import TransitionGroup from 'react-native-transitiongroup';
 import idx from 'idx';
 
 import Tips from './tips';
@@ -27,6 +28,7 @@ const CAMERA_OPTIONS = {
   base64: false,
 };
 const VIBRATION_DURATION = 100;
+const CAMERA_CAPTURE_MAXIMUM = 5;
 
 const styles = StyleSheet.create({
   container: {
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
   },
   tapContentReminder: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 16,
     marginTop: 10,
   },
 });
@@ -59,12 +61,19 @@ export default class WhatToTip extends React.Component {
     this.state = {
       autoCaptureEnabled: false,
       amount: null,
+      cameraInited: false,
+      captureCounter: 0,
     };
   }
 
   componentDidMount() {
     registerAccelerometerEvent(this.autoTakePicture);
-    setTimeout(this.enableAutoCapture, 5000);
+    setTimeout(() => {
+      this.setState({
+        autoCaptureEnabled: true,
+        cameraInited: true,
+      });
+    }, 5000);
   }
 
   disableAutoCapture = () => {
@@ -93,10 +102,13 @@ export default class WhatToTip extends React.Component {
   };
 
   autoTakePicture = async () => {
-    if (!this.camera || !this.state.autoCaptureEnabled) {
+    if (!this.camera || !this.state.autoCaptureEnabled || this.state.captureCounter > CAMERA_CAPTURE_MAXIMUM) {
       return;
     }
     this.disableAutoCapture();
+    this.setState({
+      captureCounter: this.state.captureCounter + 1
+    });
     console.log('~~~~~~~~~~~~~~~~~~~take picture!')
     const data = await this.camera.takePictureAsync(CAMERA_OPTIONS);
     cropImageAndGetBase64(
@@ -118,11 +130,12 @@ export default class WhatToTip extends React.Component {
     setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
     this.setState({
       amount: null,
+      captureCounter: 0,
     });
   };
 
   render() {
-    const { autoCaptureEnabled, amount } = this.state;
+    const { autoCaptureEnabled, amount, cameraInited } = this.state;
     return (
       <View style={styles.container}>
         <View style={{flex: 1}}>
@@ -142,8 +155,9 @@ export default class WhatToTip extends React.Component {
           onPress={this.handleTap}
           style={styles.tapContent}>
           <Text style={styles.tapContentReminder}>
-           {amount === null ?
-             'Scanning payment...' : 'Tap anywhere to re-scan'}
+           {!cameraInited ? 'Align payment total with the frame' :
+             (amount === null ?
+             'Scanning payment total...' : 'Tap anywhere to re-scan')}
           </Text>
         </TouchableOpacity>
         <Scanner
@@ -153,15 +167,19 @@ export default class WhatToTip extends React.Component {
           t={SCANNER_TOP}
           isScanning={amount === null}
         />
-        {!autoCaptureEnabled && amount !== null &&
-          <SlideUpAnimation style={{
-            left: 0,
-            width: '100%',
-            backgroundColor: 'rgba(250, 250, 255, 0.6)'
-          }}>
-            <Tips amount={this.state.amount}/>
-          </SlideUpAnimation>
-        }
+        <TransitionGroup>
+          {!autoCaptureEnabled && amount !== null &&
+            <SlideUpAnimation
+              key="slideUp"
+              style={{
+                left: 0,
+                width: '100%',
+                backgroundColor: 'rgba(250, 250, 255, 0.6)'
+            }}>
+              <Tips amount={this.state.amount}/>
+            </SlideUpAnimation>
+          }
+        </TransitionGroup>
       </View>
     );
   }
