@@ -70,13 +70,10 @@ const renderDollarItem = item => (
 );
 
 export default class Tips extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      tipOption: '15%',
-      splitWith: 1,
-    };
-  }
+  state = {
+    tipOption: '15%',
+    splitWith: 1,
+  };
 
   selectTipOptions = tipOption => () => {
     this.setState({ tipOption });

@@ -5,12 +5,9 @@ const SLIDE_UP_DURATION = 500;
 const START_BOTTOM = -500;
 
 export default class SlideUpAnimation extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      slideUpAnim: new Animated.Value(START_BOTTOM),
-    };
-  }
+  state = {
+    slideUpAnim: new Animated.Value(START_BOTTOM),
+  };
 
   componentWillEnter(cb) {
     Animated.timing(
