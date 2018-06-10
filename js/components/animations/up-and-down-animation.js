@@ -9,26 +9,15 @@ export default class UpAndDownAnimation extends React.Component {
   }
 
   componentDidMount() {
-    this.loopAnimation();
-  }
-
-  loopAnimation = () => {
-    Animated.sequence([
+    Animated.loop(
       Animated.timing(
         this.state.upAndDownAnim,
         {
           toValue: this.props.height + 1,
           duration: LOOP_DURATION,
         }
-      ),
-      Animated.timing(
-        this.state.upAndDownAnim,
-        {
-          toValue: -1,
-          duration: LOOP_DURATION,
-        }
-      ),
-    ]).start(this.loopAnimation);
+      )
+    ).start();
   }
 
   render() {
