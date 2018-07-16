@@ -57,15 +57,12 @@ const styles = StyleSheet.create({
 });
 
 export default class WhatToTip extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      autoCaptureEnabled: false,
-      amount: null,
-      cameraInited: false,
-      captureCounter: 0,
-    };
-  }
+  state = {
+    autoCaptureEnabled: false,
+    amount: null,
+    cameraInited: false,
+    captureCounter: 0,
+  };
 
   componentDidMount() {
     registerAccelerometerEvent(this.autoTakePicture);
