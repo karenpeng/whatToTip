@@ -7,9 +7,7 @@ import {
 } from 'react-native';
 import idx from 'idx';
 
-import {calculateTips, calculateSplit} from '../money-calculator';
-
-const TIP_OPTIONS = ['15%', '18%', '20%'];
+import {calculateTips, calculateSplit, TIP_OPTIONS} from '../money-calculator';
 
 const styles = StyleSheet.create({
   selectedOption: {
@@ -73,7 +71,7 @@ export default class Tips extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      tipOption: '15%',
+      tipOption: 0.15,
       splitWith: 1,
     };
   }
@@ -83,10 +81,10 @@ export default class Tips extends React.Component {
   };
 
   renderTipOptions = () => TIP_OPTIONS.map(tipOption => (
-    <View style={{flex: 1/3}} key={tipOption}>
+    <View style={{flex: 1/TIP_OPTIONS.length}} key={tipOption}>
       {renderButton(
         this.selectTipOptions(tipOption),
-        tipOption,
+        `${tipOption * 100}%`,
         tipOption === this.state.tipOption ? styles.selectedOption : styles.nonSelectedOption,
         tipOption === this.state.tipOption ? styles.selectedOptionText : styles.nonSelectedOptionText)
       }

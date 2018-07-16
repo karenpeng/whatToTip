@@ -10,6 +10,7 @@ import { RNCamera } from 'react-native-camera';
 import TransitionGroup from 'react-native-transitiongroup';
 import idx from 'idx';
 
+import Swiper from './swiper';
 import Tips from './tips';
 import Scanner from './scanner';
 import SlideUpAnimation from './animations/slide-up-animation';
@@ -89,7 +90,8 @@ export default class WhatToTip extends React.Component {
   };
 
   callGetVisionAndHandleResult = base64 => {
-    getVision(base64, this.handleResult);
+    //getVision(base64, this.handleResult);
+    this.handleResult('123.56')
   };
 
   handleResult = amount => {
@@ -176,7 +178,9 @@ export default class WhatToTip extends React.Component {
                 width: '100%',
                 backgroundColor: 'rgba(250, 250, 255, 0.6)'
             }}>
-              <Tips amount={this.state.amount}/>
+              <Swiper>
+                <Tips amount={this.state.amount}/>
+              </Swiper>
             </SlideUpAnimation>
           }
         </TransitionGroup>
