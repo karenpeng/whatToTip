@@ -2,8 +2,8 @@ import React from 'react';
 import {
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  TouchableHighlight,
 } from 'react-native';
 import idx from 'idx';
 
@@ -11,20 +11,20 @@ import {calculateTips, calculateSplit, TIP_OPTIONS} from '../money-calculator';
 
 const styles = StyleSheet.create({
   selectedOption: {
-    borderRadius: 10,
+    borderRadius: 16,
     padding: 15,
-    margin: 3,
+    margin: 6,
     alignItems: 'center',
-    backgroundColor: 'orange'
+    backgroundColor: '#00a5ff',
   },
   selectedOptionText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 16,
   },
   nonSelectedOption: {
-    borderRadius: 10,
+    borderRadius: 16,
     padding: 15,
-    margin: 3,
+    margin: 6,
     alignItems: 'center',
     backgroundColor: 'white',
   },
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     fontSize: 14
   },
   counter: {
-    borderRadius: 10,
+    borderRadius: 16,
     height: 46,
     width: 60,
     padding: 6,
@@ -42,22 +42,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   counterText: {
-    fontSize: 14,
+    fontSize: 16,
   },
 });
 
 const renderButton = (onPress, text, touchableStype, textStyle, disabled) => (
-  <TouchableOpacity
+  <TouchableHighlight
     onPress={onPress}
     style={touchableStype}
     disabled={disabled}
+    underlayColor="#00a5ff"
   >
     <Text style={textStyle}>{text}</Text>
-  </TouchableOpacity>
+  </TouchableHighlight>
 );
 
 const renderDollarItem = item => (
-  <View style={{flexDirection: 'row', margin: 4}} key={item[0]}>
+  <View style={{flexDirection: 'row', margin: 8}} key={item[0]}>
     <View>
       <Text style={{fontSize: 16}}>{`${item[0]}`.toUpperCase()}</Text>
     </View>
@@ -102,16 +103,36 @@ export default class Tips extends React.Component {
     const results = calculateTips(this.props.amount);
     const { tipOption, splitWith } = this.state;
     return (
-      <View>
+      <View style={{
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        borderColor: 'rgba(0, 0, 0, 0.6)',
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        borderWidth: 1,
+        overflow: 'hidden',
+      }}>
+        <View style={{alignItems: 'center'}}>
+          <View style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            borderColor: 'rgba(0, 0, 0, 0.8)',
+            borderRadius: 8,
+            borderWidth: 1,
+            marginTop: 8,
+            height: 3,
+            width: 56,
+          }}/>
+        </View>
         <View style={{
           flex: 1,
-          padding: 4,
+          flexDirection: 'column',
+          padding: 10,
+          marginBottom: 10,
         }}>
-          <Text style={{margin: 4}}>Tip%</Text>
+          <Text style={{margin: 8, color: 'white'}}>Tip%</Text>
           <View style={{flexDirection: 'row'}}>
             {this.renderTipOptions()}
           </View>
-          <Text style={{margin: 4}}># People split</Text>
+          <Text style={{margin: 8, color: 'white'}}># People split</Text>
           <View style={{
             flex: 1,
             flexDirection: 'row',
@@ -131,7 +152,7 @@ export default class Tips extends React.Component {
               flex: 2/9,
               alignItems: 'center',
             }}>
-              <Text style={styles.counterText}>{splitWith > 1 ? splitWith : '0'}</Text>
+              <Text style={{fontSize: 16, color: 'white'}}>{splitWith > 1 ? splitWith : '0'}</Text>
             </View>
             <View style={{flex: 2/9, alignItems: 'flex-end'}}>
               {renderButton(
@@ -147,7 +168,7 @@ export default class Tips extends React.Component {
               justifyContent: 'center',
             }}>
               {splitWith > 1 &&
-                <Text style={{fontSize: 20, fontWeight: 'bold', padding: 4}}>
+                <Text style={{fontSize: 20, fontWeight: 'bold', padding: 8, color: 'white'}}>
                   {`$${calculateSplit(results[tipOption].total, splitWith)} each`}
                 </Text>}
             </View>
@@ -155,7 +176,7 @@ export default class Tips extends React.Component {
         </View>
         <View style={{
           flex: 1,
-          padding: 6,
+          padding: 10,
           backgroundColor: 'white',
         }}>
           {Object.entries(results[tipOption]).map(result => renderDollarItem(result))}

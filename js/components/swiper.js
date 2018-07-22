@@ -1,12 +1,24 @@
 import React from 'react';
-import {View} from 'react-native';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 
 export default class Swiper extends React.Component {
   render() {
     return (
-      <View>
+      <GestureRecognizer
+        config={{
+          velocityThreshold: 0.01,
+          directionalOffsetThreshold: 200,
+        }}
+        style={{
+          flex: 1,
+        }}
+        onSwipeDown={() => {
+          this.props.onSlideDown();
+          this.props.handleReset();
+        }}
+      >
         {this.props.children}
-      </View>
+      </GestureRecognizer>
     );
   }
 }

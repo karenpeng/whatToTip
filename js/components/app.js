@@ -22,7 +22,7 @@ import getVision from '../request';
 export const SCANNER_WIDTH = 100;
 export const SCANNER_HEIGHT = 50;
 export const SCANNER_LEFT = 0.68;
-export const SCANNER_TOP = 0.32;
+export const SCANNER_TOP = 0.2;
 const ENABLE_CAMERA_TIMEOUT = 2000;
 const CAMERA_OPTIONS = {
   quality: 0.6,
@@ -121,7 +121,7 @@ export default class WhatToTip extends React.Component {
       this.callGetVisionAndHandleResult);
   };
 
-  handleTap = () => {
+  handleReset = () => {
     const { autoCaptureEnabled, amount } = this.state;
     if (autoCaptureEnabled && amount === null) {
       return;
@@ -151,7 +151,7 @@ export default class WhatToTip extends React.Component {
           />
         </View>
         <TouchableOpacity
-          onPress={this.handleTap}
+          onPress={this.handleReset}
           style={styles.tapContent}>
           <Text style={styles.tapContentReminder}>
            {!cameraInited ? 'Align payment total with the frame' :
@@ -173,9 +173,8 @@ export default class WhatToTip extends React.Component {
               style={{
                 left: 0,
                 width: '100%',
-                backgroundColor: 'rgba(250, 250, 255, 0.6)'
             }}>
-              <Swiper>
+              <Swiper handleReset={this.handleReset}>
                 <Tips amount={this.state.amount}/>
               </Swiper>
             </SlideUpAnimation>

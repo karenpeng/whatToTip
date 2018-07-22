@@ -1,7 +1,8 @@
 import React from 'react';
 import { Animated, Easing } from 'react-native';
 
-const SLIDE_UP_DURATION = 500;
+const SLOW_SLIDE_UP_DURATION = 500;
+const QUICK_SLIDE_UP_DURATION = 30;
 const START_BOTTOM = -500;
 const END_BOTTOM = 0;
 
@@ -17,23 +18,23 @@ export default class SlideUpAnimation extends React.Component {
         toValue: END_BOTTOM,
         delay: 0,
         easing: Easing.linear(),
-        duration: SLIDE_UP_DURATION,
+        duration: SLOW_SLIDE_UP_DURATION,
       }
     ).start(cb);
   }
 
   componentWillLeave(cb) {
-    this.leave(cb);
+    this.leave(SLOW_SLIDE_UP_DURATION, cb);
   }
 
-  leave(cb) {
+  leave(duration, cb) {
     Animated.timing(
       this.state.slideUpAnim,
       {
         toValue: START_BOTTOM,
         delay: 0,
         easing: Easing.linear(),
-        duration: SLIDE_UP_DURATION,
+        duration: duration,
       }
     ).start(cb);
   }
@@ -50,7 +51,7 @@ export default class SlideUpAnimation extends React.Component {
       >
         {React.Children.map(this.props.children, child =>
           React.cloneElement(child, {
-            onSwipeDown: ()=>{console.log('ouch!!!')}
+            onSlideDown: this.leave.bind(this, QUICK_SLIDE_UP_DURATION),
           })
         )}
       </Animated.View>

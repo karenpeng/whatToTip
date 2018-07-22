@@ -13,6 +13,7 @@
     "react-native": "0.55.3",
     "react-native-camera": "^1.1.2",
     "react-native-sensors": "^3.0.0",
+    "react-native-swipe-gestures": "^1.0.2",
     "react-native-transitiongroup": "^1.1.0"
   },
   "devDependencies": {
