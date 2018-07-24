@@ -10,6 +10,7 @@ import { RNCamera } from 'react-native-camera';
 import TransitionGroup from 'react-native-transitiongroup';
 import idx from 'idx';
 
+import Swiper from './swiper';
 import Tips from './tips';
 import Scanner from './scanner';
 import SlideUpAnimation from './animations/slide-up-animation';
@@ -21,7 +22,7 @@ import getVision from '../request';
 export const SCANNER_WIDTH = 100;
 export const SCANNER_HEIGHT = 50;
 export const SCANNER_LEFT = 0.68;
-export const SCANNER_TOP = 0.32;
+export const SCANNER_TOP = 0.2;
 const ENABLE_CAMERA_TIMEOUT = 2000;
 const CAMERA_OPTIONS = {
   quality: 0.6,
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tapContentReminder: {
-    color: 'white',
+    color: '#00a5ff',
     fontSize: 16,
     marginTop: 16,
   },
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
 export default class WhatToTip extends React.Component {
   state = {
     autoCaptureEnabled: false,
-    amount: null,
+    result: null,
     cameraInited: false,
     captureCounter: 0,
   };
@@ -87,13 +88,14 @@ export default class WhatToTip extends React.Component {
 
   callGetVisionAndHandleResult = base64 => {
     getVision(base64, this.handleResult);
+    // this.handleResult('$123.56')
   };
 
-  handleResult = amount => {
-    if (!inputIsValid(amount)) {
+  handleResult = result => {
+    if (!inputIsValid(result)) {
       setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
     } else {
-      this.setState({ amount });
+      this.setState({ result });
       Vibration.vibrate(VIBRATION_DURATION);
     }
   };
@@ -119,20 +121,20 @@ export default class WhatToTip extends React.Component {
       this.callGetVisionAndHandleResult);
   };
 
-  handleTap = () => {
-    const { autoCaptureEnabled, amount } = this.state;
-    if (autoCaptureEnabled && amount === null) {
+  handleReset = () => {
+    const { autoCaptureEnabled, result } = this.state;
+    if (autoCaptureEnabled && result === null) {
       return;
     }
     setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
     this.setState({
-      amount: null,
+      result: null,
       captureCounter: 0,
     });
   };
 
   render() {
-    const { autoCaptureEnabled, amount, cameraInited } = this.state;
+    const { autoCaptureEnabled, result, cameraInited } = this.state;
     return (
       <View style={styles.container}>
         <View style={{flex: 1}}>
@@ -149,11 +151,11 @@ export default class WhatToTip extends React.Component {
           />
         </View>
         <TouchableOpacity
-          onPress={this.handleTap}
+          onPress={this.handleReset}
           style={styles.tapContent}>
           <Text style={styles.tapContentReminder}>
            {!cameraInited ? 'Align payment total with the frame' :
-             (amount === null ?
+             (result === null ?
              'Scanning payment total...' : 'Tap anywhere to re-scan')}
           </Text>
         </TouchableOpacity>
@@ -162,18 +164,22 @@ export default class WhatToTip extends React.Component {
           h={SCANNER_HEIGHT}
           l={SCANNER_LEFT}
           t={SCANNER_TOP}
-          isScanning={amount === null}
+          isScanning={result === null}
         />
         <TransitionGroup>
-          {!autoCaptureEnabled && amount !== null &&
+          {!autoCaptureEnabled && result !== null &&
             <SlideUpAnimation
               key="slideUp"
               style={{
                 left: 0,
                 width: '100%',
-                backgroundColor: 'rgba(250, 250, 255, 0.6)'
             }}>
-              <Tips amount={this.state.amount}/>
+              <Swiper handleReset={this.handleReset}>
+                <Tips
+                  result={this.state.result}
+                  dollarSign={this.state.dollarSign}
+                />
+              </Swiper>
             </SlideUpAnimation>
           }
         </TransitionGroup>
