@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import idx from 'idx';
 
-import {calculateTips, calculateSplit, TIP_OPTIONS} from '../money-calculator';
+import {calculateTips, calculateSplit, getDollarSign, TIP_OPTIONS} from '../money-calculator';
 
 const styles = StyleSheet.create({
   selectedOption: {
@@ -57,13 +57,13 @@ const renderButton = (onPress, text, touchableStype, textStyle, disabled) => (
   </TouchableHighlight>
 );
 
-const renderDollarItem = item => (
+const renderDollarItem = (item, dollarSign) => (
   <View style={{flexDirection: 'row', margin: 8}} key={item[0]}>
     <View>
       <Text style={{fontSize: 16}}>{`${item[0]}`.toUpperCase()}</Text>
     </View>
     <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
-      <Text style={{fontSize: 20, fontWeight: 'bold'}}>{`$${item[1]}`}</Text>
+      <Text style={{fontSize: 20, fontWeight: 'bold'}}>{`${dollarSign}${item[1]}`}</Text>
     </View>
   </View>
 );
@@ -100,7 +100,8 @@ export default class Tips extends React.Component {
   };
 
   render() {
-    const results = calculateTips(this.props.amount);
+    const tipResults = calculateTips(this.props.result);
+    const dollarSign = getDollarSign(this.props.result);
     const { tipOption, splitWith } = this.state;
     return (
       <View style={{
@@ -119,7 +120,7 @@ export default class Tips extends React.Component {
             borderWidth: 1,
             marginTop: 8,
             height: 3,
-            width: 56,
+            width: 46,
           }}/>
         </View>
         <View style={{
@@ -169,7 +170,7 @@ export default class Tips extends React.Component {
             }}>
               {splitWith > 1 &&
                 <Text style={{fontSize: 20, fontWeight: 'bold', padding: 8, color: 'white'}}>
-                  {`$${calculateSplit(results[tipOption].total, splitWith)} each`}
+                  {`${dollarSign}${calculateSplit(tipResults[tipOption].total, splitWith)} each`}
                 </Text>}
             </View>
           </View>
@@ -179,7 +180,7 @@ export default class Tips extends React.Component {
           padding: 10,
           backgroundColor: 'white',
         }}>
-          {Object.entries(results[tipOption]).map(result => renderDollarItem(result))}
+          {Object.entries(tipResults[tipOption]).map(result => renderDollarItem(result, dollarSign))}
         </View>
       </View>
     );

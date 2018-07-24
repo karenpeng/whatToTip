@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tapContentReminder: {
-    color: 'white',
+    color: '#00a5ff',
     fontSize: 16,
     marginTop: 16,
   },
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
 export default class WhatToTip extends React.Component {
   state = {
     autoCaptureEnabled: false,
-    amount: null,
+    result: null,
     cameraInited: false,
     captureCounter: 0,
   };
@@ -87,15 +87,15 @@ export default class WhatToTip extends React.Component {
   };
 
   callGetVisionAndHandleResult = base64 => {
-    //getVision(base64, this.handleResult);
-    this.handleResult('123.56')
+    getVision(base64, this.handleResult);
+    // this.handleResult('$123.56')
   };
 
-  handleResult = amount => {
-    if (!inputIsValid(amount)) {
+  handleResult = result => {
+    if (!inputIsValid(result)) {
       setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
     } else {
-      this.setState({ amount });
+      this.setState({ result });
       Vibration.vibrate(VIBRATION_DURATION);
     }
   };
@@ -122,19 +122,19 @@ export default class WhatToTip extends React.Component {
   };
 
   handleReset = () => {
-    const { autoCaptureEnabled, amount } = this.state;
-    if (autoCaptureEnabled && amount === null) {
+    const { autoCaptureEnabled, result } = this.state;
+    if (autoCaptureEnabled && result === null) {
       return;
     }
     setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
     this.setState({
-      amount: null,
+      result: null,
       captureCounter: 0,
     });
   };
 
   render() {
-    const { autoCaptureEnabled, amount, cameraInited } = this.state;
+    const { autoCaptureEnabled, result, cameraInited } = this.state;
     return (
       <View style={styles.container}>
         <View style={{flex: 1}}>
@@ -155,7 +155,7 @@ export default class WhatToTip extends React.Component {
           style={styles.tapContent}>
           <Text style={styles.tapContentReminder}>
            {!cameraInited ? 'Align payment total with the frame' :
-             (amount === null ?
+             (result === null ?
              'Scanning payment total...' : 'Tap anywhere to re-scan')}
           </Text>
         </TouchableOpacity>
@@ -164,10 +164,10 @@ export default class WhatToTip extends React.Component {
           h={SCANNER_HEIGHT}
           l={SCANNER_LEFT}
           t={SCANNER_TOP}
-          isScanning={amount === null}
+          isScanning={result === null}
         />
         <TransitionGroup>
-          {!autoCaptureEnabled && amount !== null &&
+          {!autoCaptureEnabled && result !== null &&
             <SlideUpAnimation
               key="slideUp"
               style={{
@@ -175,7 +175,10 @@ export default class WhatToTip extends React.Component {
                 width: '100%',
             }}>
               <Swiper handleReset={this.handleReset}>
-                <Tips amount={this.state.amount}/>
+                <Tips
+                  result={this.state.result}
+                  dollarSign={this.state.dollarSign}
+                />
               </Swiper>
             </SlideUpAnimation>
           }
