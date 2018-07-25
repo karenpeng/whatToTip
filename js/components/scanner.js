@@ -19,6 +19,7 @@ const createStyle = data => {
   };
 };
 
+// TODO: make it flexible for moving around
 export default class Scanner extends React.Component {
 
   render() {

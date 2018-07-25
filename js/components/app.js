@@ -7,17 +7,15 @@ import {
   Vibration,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import TransitionGroup from 'react-native-transitiongroup';
 import idx from 'idx';
 
-import Swiper from './swiper';
-import Tips from './tips';
+import Tips from './tips/tips';
 import Scanner from './scanner';
 import SlideUpAnimation from './animations/slide-up-animation';
 import { inputIsValid } from '../money-calculator';
-import accelerationObservable, {registerAccelerometerEvent} from '../accelerometer';
-import cropImageAndGetBase64 from '../image-processor';
-import getVision from '../request';
+import accelerationObservable, {registerAccelerometerEvent} from '../utils/accelerometer';
+import cropImageAndGetBase64 from '../utils/image-processor';
+import getVision from '../utils/request';
 
 export const SCANNER_WIDTH = 100;
 export const SCANNER_HEIGHT = 50;
@@ -166,23 +164,19 @@ export default class WhatToTip extends React.Component {
           t={SCANNER_TOP}
           isScanning={result === null}
         />
-        <TransitionGroup>
-          {!autoCaptureEnabled && result !== null &&
-            <SlideUpAnimation
-              key="slideUp"
-              style={{
-                left: 0,
-                width: '100%',
-            }}>
-              <Swiper handleReset={this.handleReset}>
-                <Tips
-                  result={this.state.result}
-                  dollarSign={this.state.dollarSign}
-                />
-              </Swiper>
-            </SlideUpAnimation>
+        {!autoCaptureEnabled && result !== null &&
+          <SlideUpAnimation
+            key="slideUp"
+            style={{
+              left: 0,
+              width: '100%',
+          }}>
+            <Tips
+              result={this.state.result}
+              dollarSign={this.state.dollarSign}
+            />
+          </SlideUpAnimation>
           }
-        </TransitionGroup>
       </View>
     );
   }
