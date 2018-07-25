@@ -3,17 +3,18 @@ import {
   StyleSheet,
   Text,
   View,
-  ScrollView
+  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 
 import {TIPS_OPTIONS} from '../../utils/money-calculator';
 
 const styles = StyleSheet.create({
   selectedOptionText: {
-    fontSize: 26,
+    fontSize: 46,
   },
   nonSelectedOptionText: {
-    fontSize: 24
+    fontSize: 20
   },
 });
 
@@ -22,28 +23,33 @@ export default class TipsOptionSwiper extends React.Component {
   saveRef: Function = (ref: ScrollView) => (this.scrollViewRef = ref);
 
   render() {
+    const { selectedTipOption, onTipOptionSelect } = this.props;
     return (
-      <View
+      <ScrollView
+        horizontal
+        onScroll={() => {console.log()}}
+        pagingEnabled
+        ref={this.saveRef}
+        showsHorizontalScrollIndicator={false}
         style={{
           margin: 4,
-          alignItems: 'center',
         }}>
-        <ScrollView
-          horizontal
-          onScroll={() => {console.log()}}
-          pagingEnabled
-          ref={this.saveRef}
-          showsHorizontalScrollIndicator={false}>
-          {TIPS_OPTIONS.map(option => (
-            <View key={option} style={{
+        {TIPS_OPTIONS.map(option => (
+          <TouchableOpacity
+            key={option}
+            onPress={onTipOptionSelect(option)}
+            style={{
               padding: 10,
               margin: 6,
+              justifyContent: 'center',
             }}>
-              <Text style={styles.selectedOptionText}>{ `${option * 100}%`}</Text>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+            <Text style={
+              selectedTipOption === option ?
+              styles.selectedOptionText : styles.nonSelectedOptionText
+            }>{ `${option * 100}%`}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     );
   }
 }

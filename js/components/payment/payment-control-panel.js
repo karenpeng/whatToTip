@@ -5,7 +5,7 @@ import TipsOptionSwiper from './tips-option-swiper';
 import PaymentSliptter from './payment-splitter';
 
 export default PaymentControlPanel = props => {
-  const { payment, dollarSign, onTipOptionSelect } = props;
+  const { payment, dollarSign, onTipOptionSelect, selectedTipOption } = props;
   return (
     <View style={{
       flex: 1,
@@ -13,11 +13,13 @@ export default PaymentControlPanel = props => {
       padding: 10,
       backgroundColor: 'white',
       borderBottomWidth: 1,
-      borderBottomColor: 'black',
+      borderBottomColor: '#eee',
     }}>
       <Text style={{margin: 4}}>Tip%</Text>
       <View style={{flexDirection: 'row'}}>
-        <TipsOptionSwiper onTipOptionSelect={onTipOptionSelect}/>
+        <TipsOptionSwiper
+          onTipOptionSelect={onTipOptionSelect}
+          selectedTipOption={selectedTipOption}/>
       </View>
       <Text style={{margin: 4}}># People split</Text>
       <PaymentSliptter dollarSign={dollarSign} payment={payment}/>

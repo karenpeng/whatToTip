@@ -28,6 +28,7 @@ export default class Payment extends React.Component {
         <PaymentControlPanel
           payment={paymentResults[tipOption]}
           dollarSign={dollarSign}
+          selectedTipOption={tipOption}
           onTipOptionSelect={this.onTipOptionSelect}/>
         <PaymentDisplay
           payment={paymentResults[tipOption]}

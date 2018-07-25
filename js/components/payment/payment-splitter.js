@@ -11,8 +11,8 @@ import {calculateSplit} from '../../utils/money-calculator';
 const styles = StyleSheet.create({
   counter: {
     borderRadius: 36,
-    height: 36,
-    width: 36,
+    height: 40,
+    width: 40,
     padding: 6,
     margin: 4,
     backgroundColor: '#ddd',
@@ -29,7 +29,7 @@ const renderButton = (onPress, text, touchableStype, textStyle, disabled) => (
     onPress={onPress}
     style={touchableStype}
     disabled={disabled}
-    underlayColor="#ddd"
+    underlayColor="#ccc"
   >
     <Text style={textStyle}>{text}</Text>
   </TouchableHighlight>
