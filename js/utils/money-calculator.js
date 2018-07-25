@@ -1,7 +1,7 @@
 const normalizeAmount = result => parseFloat(result.match(/\d+(.(\d){1,2})?/)[0]);
 
-export const TIP_OPTIONS = [
-  0.05, 0.08, 0.10, 0.15, 0.18, 0.20
+export const TIPS_OPTIONS = [
+  0.05, 0.08, 0.10, 0.15, 0.18, 0.20, 0.25
 ];
 
 export const inputIsValid = result => {
@@ -15,7 +15,7 @@ const calculateDollar = (amount, rate) => (amount * rate).toFixed(2);
 
 export const calculateTips = result => {
   const amountNumber = normalizeAmount(result);
-  return TIP_OPTIONS.reduce((acc, range) => ({
+  return TIPS_OPTIONS.reduce((acc, range) => ({
     ...acc,
     [range]: {
       amount: calculateDollar(amountNumber, 1),

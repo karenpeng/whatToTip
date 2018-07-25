@@ -1,15 +1,10 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableHighlight,
-} from 'react-native';
+import { View } from 'react-native';
 import idx from 'idx';
 
 import {calculateTips, getDollarSign} from '../../utils/money-calculator';
-import {PaymentControlPanel} from './payment-control-panel';
-import {PaymentDisplay} from './payment-display';
+import PaymentControlPanel from './payment-control-panel';
+import PaymentDisplay from './payment-display';
 
 export default class Payment extends React.Component {
   constructor(props){
@@ -29,10 +24,8 @@ export default class Payment extends React.Component {
     const dollarSign = getDollarSign(this.props.result);
     const { tipOption, splitWith } = this.state;
     return (
-      <View style={{
-        backgroundColor: 'black',
-      }}>
-        <PaymentontrolPanel
+      <View>
+        <PaymentControlPanel
           payment={paymentResults[tipOption]}
           dollarSign={dollarSign}
           onTipOptionSelect={this.onTipOptionSelect}/>

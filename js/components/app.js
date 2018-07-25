@@ -9,10 +9,10 @@ import {
 import { RNCamera } from 'react-native-camera';
 import idx from 'idx';
 
-import Tips from './tips/tips';
+import Payment from './payment/payment';
 import Scanner from './scanner';
 import SlideUpAnimation from './animations/slide-up-animation';
-import { inputIsValid } from '../money-calculator';
+import { inputIsValid } from '../utils/money-calculator';
 import accelerationObservable, {registerAccelerometerEvent} from '../utils/accelerometer';
 import cropImageAndGetBase64 from '../utils/image-processor';
 import getVision from '../utils/request';
@@ -48,7 +48,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tapContentReminder: {
-    color: '#00a5ff',
     fontSize: 16,
     marginTop: 16,
   },
@@ -85,8 +84,8 @@ export default class WhatToTip extends React.Component {
   };
 
   callGetVisionAndHandleResult = base64 => {
-    getVision(base64, this.handleResult);
-    // this.handleResult('$123.56')
+    // getVision(base64, this.handleResult);
+    this.handleResult('$123.56')
   };
 
   handleResult = result => {
@@ -143,7 +142,7 @@ export default class WhatToTip extends React.Component {
             style = {styles.preview}
             type={RNCamera.Constants.Type.back}
             autoFocus={RNCamera.Constants.AutoFocus.on}
-            flashMode={RNCamera.Constants.FlashMode.auto}
+            flashMode={RNCamera.Constants.FlashMode.off}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={'We need your permission to use your camera phone'}
           />
@@ -171,7 +170,7 @@ export default class WhatToTip extends React.Component {
               left: 0,
               width: '100%',
           }}>
-            <Tips
+            <Payment
               result={this.state.result}
               dollarSign={this.state.dollarSign}
             />

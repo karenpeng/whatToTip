@@ -1,5 +1,5 @@
 import idx from 'idx';
-import credential from '../api-key';
+import credential from '../../api-key';
 
 const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${credential.key}`;
 

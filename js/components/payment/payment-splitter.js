@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,12 +10,12 @@ import {calculateSplit} from '../../utils/money-calculator';
 
 const styles = StyleSheet.create({
   counter: {
-    borderRadius: 16,
-    height: 46,
-    width: 60,
+    borderRadius: 36,
+    height: 36,
+    width: 36,
     padding: 6,
     margin: 4,
-    backgroundColor: 'white',
+    backgroundColor: '#ddd',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -28,7 +29,7 @@ const renderButton = (onPress, text, touchableStype, textStyle, disabled) => (
     onPress={onPress}
     style={touchableStype}
     disabled={disabled}
-    underlayColor="#00a5ff"
+    underlayColor="#ddd"
   >
     <Text style={textStyle}>{text}</Text>
   </TouchableHighlight>
@@ -42,7 +43,7 @@ export default class PaymentSliptter extends React.Component {
     };
   }
 
-  updateSliptWith = isIncrement => () => {
+  updateSplitWith = isIncrement => () => {
     const { splitWith } = this.state;
     this.setState({
       splitWith: splitWith + (isIncrement ? 1 : - 1),
@@ -51,16 +52,18 @@ export default class PaymentSliptter extends React.Component {
 
   render() {
     const { dollarSign, payment } = this.props;
+    const { splitWith } = this.state;
     return (
       <View style={{
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        paddingBottom: 6,
       }}>
-        <View style={{flex: 2/9, alignItems: 'flex-start'}}>
+        <View style={{flex: 1/6, alignItems: 'flex-start'}}>
           {renderButton(
-            this.updateSliptWith(false),
+            this.updateSplitWith(false),
             '-',
             styles.counter,
             styles.counterText,
@@ -68,26 +71,26 @@ export default class PaymentSliptter extends React.Component {
           )}
         </View>
         <View style={{
-          flex: 2/9,
+          flex: 1/6,
           alignItems: 'center',
         }}>
-          <Text style={{fontSize: 16, color: 'white'}}>{splitWith > 1 ? splitWith : '0'}</Text>
+          <Text style={{fontSize: 16}}>{splitWith > 1 ? splitWith : '0'}</Text>
         </View>
-        <View style={{flex: 2/9, alignItems: 'flex-end'}}>
+        <View style={{flex: 1/6, alignItems: 'flex-end'}}>
           {renderButton(
-            this.updateSliptWith(true),
+            this.updateSplitWith(true),
             '+',
             styles.counter,
             styles.counterText
           )}
         </View>
         <View style={{
-          flex: 1/3,
+          flex: 1/2,
           alignItems: 'flex-end',
           justifyContent: 'center',
         }}>
           {splitWith > 1 &&
-            <Text style={{fontSize: 20, fontWeight: 'bold', padding: 8, color: 'white'}}>
+            <Text style={{fontSize: 20, fontWeight: 'bold', padding: 8}}>
               {`${dollarSign}${calculateSplit(payment.total, splitWith)} each`}
             </Text>}
         </View>
