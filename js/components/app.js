@@ -84,8 +84,8 @@ export default class WhatToTip extends React.Component {
   };
 
   callGetVisionAndHandleResult = base64 => {
-    // getVision(base64, this.handleResult);
-    this.handleResult('$123.56')
+    getVision(base64, this.handleResult);
+    // this.handleResult('$123.56')
   };
 
   handleResult = result => {

@@ -1,11 +1,14 @@
-const normalizeAmount = result => parseFloat(result.match(/\d+(.(\d){1,2})?/)[0]);
+const normalizeAmount = result => {
+  const withoutComma = result.replace(',', '');
+  return parseFloat(withoutComma.match(/\d+(\.(\d){1,2})?/)[0]);
+};
 
 export const TIPS_OPTIONS = [
   0.05, 0.08, 0.10, 0.15, 0.18, 0.20, 0.25
 ];
 
 export const inputIsValid = result => {
-  if (result === undefined || result === null || isNaN(normalizeAmount(result))) {
+  if (!result || isNaN(normalizeAmount(result))) {
     return false;
   }
   return true;
@@ -31,9 +34,6 @@ export const calculateSplit = (total, people) => {
 };
 
 export const getDollarSign = result => {
-  const t = result
-  console.log(t)
-  const a = t.replace(/(\d+(.(\d){1,2})?)$/, '');
-  console.log(a)
-  return a
-}
+  const match = result.match(/(\D)(\d)+\.(\d){1,2}/);
+  return match ? match[1] : '';
+};

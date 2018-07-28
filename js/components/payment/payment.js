@@ -17,10 +17,17 @@ export default class Payment extends React.Component {
   }
 
   componentDidMount() {
+    this.onTipOptionLoad();
+  };
+
+  onTipOptionLoad = async() => {
     try {
-      const tipOption = await AsyncStorage.getItem(TIPS_OPTION_KEY);
-      if (tipOption !== null) {
-        this.setState({ tipOption });
+      const tipOptionResult = await AsyncStorage.getItem(TIPS_OPTION_KEY);
+      if (typeof tipOptionResult === 'string') {
+        const tipOption = parseFloat(tipOptionResult);
+        if (!Number.isNaN(tipOption)) {
+          this.setState({ tipOption });
+        }
       }
     } catch (error) {
      console.log(error);
@@ -30,7 +37,7 @@ export default class Payment extends React.Component {
   onTipOptionSelect = tipOption => async() => {
     this.setState({ tipOption });
     try {
-      await AsyncStorage.setItem(TIPS_OPTION_KEY, tipOption);
+      await AsyncStorage.setItem(TIPS_OPTION_KEY, `${tipOption}`);
     } catch (error) {
       console.log(error);
     }
