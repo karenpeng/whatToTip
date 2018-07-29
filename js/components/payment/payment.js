@@ -1,63 +1,52 @@
 import React from 'react';
-import { View, AsyncStorage } from 'react-native';
-import idx from 'idx';
+import { View, Text } from 'react-native';
 
-import {calculateTips, getDollarSign} from '../../utils/money-calculator';
-import PaymentControlPanel from './payment-control-panel';
-import PaymentDisplay from './payment-display';
+import {calculateTips, getDollarSign} from '../../utils/payment-calculator';
+import TipsOptionSwiper from './tips-option-swiper';
+import PaymentSliptter from './payment-splitter';
 
-const TIPS_OPTION_KEY = '@MyTipOption';
+const renderDollarItem = (item, dollarSign) => (
+  <View style={{flexDirection: 'row', margin: 4}} key={item[0]}>
+    <View>
+      <Text style={{fontSize: 16}}>{`${item[0]}`.toUpperCase()}</Text>
+    </View>
+    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+      <Text style={{fontSize: 20, fontWeight: 'bold'}}>{`${dollarSign}${item[1]}`}</Text>
+    </View>
+  </View>
+);
 
-export default class Payment extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      tipOption: 0.15,
-    };
-  }
-
-  componentDidMount() {
-    this.onTipOptionLoad();
-  };
-
-  onTipOptionLoad = async() => {
-    try {
-      const tipOptionResult = await AsyncStorage.getItem(TIPS_OPTION_KEY);
-      if (typeof tipOptionResult === 'string') {
-        const tipOption = parseFloat(tipOptionResult);
-        if (!Number.isNaN(tipOption)) {
-          this.setState({ tipOption });
-        }
-      }
-    } catch (error) {
-     console.log(error);
-    }
-  };
-
-  onTipOptionSelect = tipOption => async() => {
-    this.setState({ tipOption });
-    try {
-      await AsyncStorage.setItem(TIPS_OPTION_KEY, `${tipOption}`);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  render() {
-    const paymentResults = calculateTips(this.props.result);
-    const dollarSign = getDollarSign(this.props.result);
-    const { tipOption, splitWith } = this.state;
-    return (
-      <View>
-        <PaymentControlPanel
-          payment={paymentResults[tipOption]}
-          dollarSign={dollarSign}
-          selectedTipOption={tipOption}
-          onTipOptionSelect={this.onTipOptionSelect}/>
-        <PaymentDisplay
-          payment={paymentResults[tipOption]}
-          dollarSign={dollarSign}/>
+export default Payment = props => {
+  const { result, tipOption, onTipOptionSelect } = props;
+  const paymentResults = calculateTips(result);
+  const payment = paymentResults[tipOption];
+  const dollarSign = getDollarSign(result);
+  return (
+    <View>
+      <View style={{
+        flex: 1,
+        flexDirection: 'column',
+        padding: 10,
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderBottomColor: '#eef',
+      }}>
+        <Text style={{margin: 4}}>Tip%</Text>
+        <View style={{flexDirection: 'row', flex: 1}}>
+          <TipsOptionSwiper
+            onTipOptionSelect={onTipOptionSelect}
+            selectedTipOption={tipOption}/>
+        </View>
+        <Text style={{margin: 4}}># People split</Text>
+        <PaymentSliptter dollarSign={dollarSign} payment={payment}/>
       </View>
-    );
-  }
+      <View style={{
+        flex: 1,
+        padding: 10,
+        backgroundColor: 'white',
+      }}>
+        {Object.entries(payment).map(item => renderDollarItem(item, dollarSign))}
+      </View>
+    </View>
+  );
 }

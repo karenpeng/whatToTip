@@ -49,7 +49,7 @@ export const registerAccelerometerEvent = cb =>
       });
   })
   .catch(error => {
-    console.log("The sensor is not available");
+    console.log('The sensor is not available');
   });
 
 

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   Vibration,
+  AsyncStorage,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import idx from 'idx';
@@ -12,22 +13,25 @@ import idx from 'idx';
 import Payment from './payment/payment';
 import Scanner from './scanner';
 import SlideUpAnimation from './animations/slide-up-animation';
-import { inputIsValid } from '../utils/money-calculator';
+import { inputIsValid } from '../utils/payment-calculator';
 import accelerationObservable, {registerAccelerometerEvent} from '../utils/accelerometer';
 import cropImageAndGetBase64 from '../utils/image-processor';
 import getVision from '../utils/request';
+import constants from '../../constants';
 
 export const SCANNER_WIDTH = 100;
 export const SCANNER_HEIGHT = 50;
 export const SCANNER_LEFT = 0.68;
 export const SCANNER_TOP = 0.2;
-const ENABLE_CAMERA_TIMEOUT = 2000;
+// const ENABLE_CAMERA_TIMEOUT = 2000;
+const ENABLE_CAMERA_TIMEOUT = 0;
 const CAMERA_OPTIONS = {
   quality: 0.6,
   base64: false,
 };
 const VIBRATION_DURATION = 100;
 const CAMERA_CAPTURE_MAXIMUM = 5;
+const tipOptionKey = constants.storageKey;
 
 const styles = StyleSheet.create({
   container: {
@@ -49,7 +53,9 @@ const styles = StyleSheet.create({
   },
   tapContentReminder: {
     fontSize: 16,
-    marginTop: 16,
+    marginTop: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    padding: 4,
   },
 });
 
@@ -59,10 +65,12 @@ export default class WhatToTip extends React.Component {
     result: null,
     cameraInited: false,
     captureCounter: 0,
+    tipOption: 0.15,
   };
 
   componentDidMount() {
     registerAccelerometerEvent(this.autoTakePicture);
+    this.onTipOptionLoad();
     setTimeout(() => {
       this.setState({
         autoCaptureEnabled: true,
@@ -70,6 +78,30 @@ export default class WhatToTip extends React.Component {
       });
     }, 5000);
   }
+
+  onTipOptionLoad = async() => {
+    try {
+      const tipOptionResult = await AsyncStorage.getItem(tipOptionKey);
+      if (typeof tipOptionResult === 'string') {
+        const tipOption = parseFloat(tipOptionResult);
+        if (!Number.isNaN(tipOption)) {
+          this.setState({ tipOption });
+          console.log(1)
+        }
+      }
+    } catch (error) {
+     console.log(error);
+    }
+  };
+
+  onTipOptionSelect = tipOption => async() => {
+    this.setState({ tipOption });
+    try {
+      await AsyncStorage.setItem(tipOptionKey, `${tipOption}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   disableAutoCapture = () => {
     this.setState({
@@ -84,8 +116,8 @@ export default class WhatToTip extends React.Component {
   };
 
   callGetVisionAndHandleResult = base64 => {
-    getVision(base64, this.handleResult);
-    // this.handleResult('$123.56')
+    //getVision(base64, this.handleResult);
+    this.handleResult('$123.56')
   };
 
   handleResult = result => {
@@ -105,7 +137,6 @@ export default class WhatToTip extends React.Component {
     this.setState({
       captureCounter: this.state.captureCounter + 1
     });
-    console.log('~~~~~~~~~~~~~~~~~~~take picture!')
     const data = await this.camera.takePictureAsync(CAMERA_OPTIONS);
     cropImageAndGetBase64(
       data,
@@ -131,7 +162,7 @@ export default class WhatToTip extends React.Component {
   };
 
   render() {
-    const { autoCaptureEnabled, result, cameraInited } = this.state;
+    const { autoCaptureEnabled, result, cameraInited, tipOption } = this.state;
     return (
       <View style={styles.container}>
         <View style={{flex: 1}}>
@@ -171,8 +202,9 @@ export default class WhatToTip extends React.Component {
               width: '100%',
           }}>
             <Payment
-              result={this.state.result}
-              dollarSign={this.state.dollarSign}
+              result={result}
+              tipOption={tipOption}
+              onTipOptionSelect={this.onTipOptionSelect}
             />
           </SlideUpAnimation>
           }

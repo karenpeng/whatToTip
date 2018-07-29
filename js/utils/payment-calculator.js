@@ -4,7 +4,7 @@ const normalizeAmount = result => {
 };
 
 export const TIPS_OPTIONS = [
-  0.05, 0.08, 0.10, 0.15, 0.18, 0.20, 0.25
+  0.05, 0.08, 0.10, 0.15, 0.18, 0.20, 0.25, 
 ];
 
 export const inputIsValid = result => {

@@ -1,7 +1,7 @@
 import idx from 'idx';
-import credential from '../../api-key';
+import constants from '../../constants';
 
-const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${credential.key}`;
+const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${constants.apiKey}`;
 
 const getVision = (base64, cb) => {
   const options = {

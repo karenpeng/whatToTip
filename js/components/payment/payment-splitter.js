@@ -6,7 +6,7 @@ import {
   TouchableHighlight,
 } from 'react-native';
 
-import {calculateSplit} from '../../utils/money-calculator';
+import {calculateSplit} from '../../utils/payment-calculator';
 
 const styles = StyleSheet.create({
   counter: {
@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     width: 40,
     padding: 6,
     margin: 4,
-    backgroundColor: '#ddd',
+    backgroundColor: '#dde',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -29,7 +29,7 @@ const renderButton = (onPress, text, touchableStype, textStyle, disabled) => (
     onPress={onPress}
     style={touchableStype}
     disabled={disabled}
-    underlayColor="#ccc"
+    underlayColor="#ccd"
   >
     <Text style={textStyle}>{text}</Text>
   </TouchableHighlight>
