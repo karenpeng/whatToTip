@@ -86,7 +86,6 @@ export default class WhatToTip extends React.Component {
         const tipOption = parseFloat(tipOptionResult);
         if (!Number.isNaN(tipOption)) {
           this.setState({ tipOption });
-          console.log(1)
         }
       }
     } catch (error) {
@@ -94,7 +93,8 @@ export default class WhatToTip extends React.Component {
     }
   };
 
-  onTipOptionSelect = tipOption => async() => {
+  onTipOptionSelect = async(tipOption) => {
+    console.log(tipOption)
     this.setState({ tipOption });
     try {
       await AsyncStorage.setItem(tipOptionKey, `${tipOption}`);

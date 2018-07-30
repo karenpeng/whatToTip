@@ -21,81 +21,132 @@ const styles = StyleSheet.create({
   },
 });
 
+const getSelectedIndex = option => TIPS_OPTIONS.indexOf(option);
+
+const getWidth = event => idx(event, _ => _.nativeEvent.layout.width);
+
+const calculateWithparams = (params, cb) => {
+  const { selectedoptionWidth, nonSelectedOptionWidth, viewWidth } = params;
+  if (!selectedoptionWidth || !nonSelectedOptionWidth || !viewWidth) {
+    return false;
+  }
+  return cb(params);
+};
+
+const needsScroll = params =>
+  calculateWithparams(params, params => {
+    const { selectedoptionWidth, nonSelectedOptionWidth, viewWidth } = params;
+    return (
+      TIPS_OPTION_MARGIN * 2 * TIPS_OPTIONS.length +
+      nonSelectedOptionWidth * (TIPS_OPTIONS.length - 1) +
+      selectedoptionWidth > viewWidth
+    );
+  });
+
+const shouldScrollRight = params =>
+  calculateWithparams(params, params => {
+    const { selectedoptionWidth, nonSelectedOptionWidth, viewWidth, selectedIndex } = params;
+    return (
+      TIPS_OPTION_MARGIN * 2 * (selectedIndex + 1) +
+      nonSelectedOptionWidth * selectedIndex +
+      selectedoptionWidth > viewWidth
+    );
+  });
+
+const shouldScrollLeft = params =>
+  calculateWithparams(params, params => {
+    const { selectedoptionWidth, nonSelectedOptionWidth, viewWidth, selectedIndex } = params;
+    return (
+      TIPS_OPTION_MARGIN * 2 * (TIPS_OPTIONS.length - selectedIndex) +
+      nonSelectedOptionWidth * (TIPS_OPTIONS.length - selectedIndex - 1) +
+      selectedoptionWidth > viewWidth
+    );
+  });
+
 export default class TipsOptionSwiper extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       selectedoptionWidth: null,
       nonSelectedOptionWidth: null,
-      selectedIndex: TIPS_OPTIONS.indexOf(this.props.selectedTipOption),
+      viewWidth: null,
+      selectedIndex: getSelectedIndex(this.props.selectedTipOption),
       dotIndex: -1,
     };
   }
 
   saveRef = ref => (this.scrollView = ref);
 
-  onScroll = event => {
-    //console.log(event.nativeEvent)
-  };
-
   getOptionWidth = isSelected => event => {
-    const width = idx(event, _ => _.nativeEvent.layout.width);
+    const width = getWidth(event);
     if (width) {
       this.setState({
         [isSelected ? 'selectedoptionWidth' : 'nonSelectedOptionWidth']: width
       });
     }
+  };
+
+  getViewWidth = event => {
+    const viewWidth = getWidth(event);
+    if (viewWidth) {
+      this.setState({ viewWidth });
+    }
+    return viewWidth;
+  };
+
+  adjustScroll = params => {
+    if (this.state.dotIndex === 0 && shouldScrollRight(params)) {
+      this.scrollView.scrollToEnd();
+      this.setState({ dotIndex: 1 });
+    } else if (this.state.dotIndex === 1 && shouldScrollLeft(params)) {
+      this.scrollView.scrollTo({x: 0, y : 0, animated: true});
+      this.setState({ dotIndex: 0 });
+    }
+  };
+
+  onWholeLayout = event => {
+    const viewWidth = this.getViewWidth(event);
+    const params = { ...this.state, viewWidth };
+    if (!needsScroll(params)) {
+      return;
+    }
+    this.setState({ dotIndex: 0 });
+    this.adjustScroll({ ...params, dotIndex: 0 });
+  };
+
+  onOptionSelect = option => async() => {
+    await this.props.onTipOptionSelect(option);
+    this.adjustScroll({ ...this.state, selectedIndex: getSelectedIndex(option) });
   }
 
-  adjustIntialScroll = event => {
-    const viewWidth = idx(event, _ => _.nativeEvent.layout.width);
-    const { selectedoptionWidth, nonSelectedOptionWidth, selectedIndex } = this.state
+  onScroll = event => {
+    console.log(event.nativeEvent)
+    const offset = idx(event, _ => _.nativeEvent.contentOffset.x);
+    const width = idx(event, _ => _.nativeEvent.layoutMeasurement.width);
     console.log(this.state)
-    console.log(viewWidth)
-    if (viewWidth && selectedoptionWidth && nonSelectedOptionWidth) {
-      if (
-        TIPS_OPTION_MARGIN * 2 * TIPS_OPTIONS.length +
-        nonSelectedOptionWidth * (TIPS_OPTIONS.length - 1) +
-        selectedoptionWidth <= viewWidth
-      ) {
-        return;
-      }
-
-      if (
-        TIPS_OPTION_MARGIN * 2 * (selectedIndex + 1) +
-        nonSelectedOptionWidth * selectedIndex +
-        selectedoptionWidth > viewWidth
-      ) {
-        this.scrollView.scrollToEnd();
-        this.setState({ dotIndex: 1 });
-      } else {
-        this.setState({ dotIndex: 0 });
-      }
-    }
   }
 
   render() {
-    const { selectedTipOption, onTipOptionSelect } = this.props;
+    const { selectedTipOption } = this.props;
     const { dotIndex } = this.state;
     return (
       <View
-        onLayout={this.adjustIntialScroll}
-        style={{alignItems: 'center', flex: 1, backgroundColor: 'yellow'}}>
+        onLayout={this.onWholeLayout}
+        style={{ flex: 1, alignItems: 'center', }}>
         <ScrollView
-          horizontal
           onScroll={this.onScroll}
-          showsHorizontalScrollIndicator={false}
           ref={this.saveRef}
+          showsHorizontalScrollIndicator={false}
+          horizontal
           style={{
             flex: 1,
-            backgroundColor: 'blue'
           }}>
           {TIPS_OPTIONS.map(option => {
             const isSelected = selectedTipOption === option;
             return (
               <TouchableOpacity
                 key={option}
-                onPress={onTipOptionSelect(option)}
+                onPress={this.onOptionSelect(option)}
                 onLayout={this.getOptionWidth(isSelected)}
                 style={{
                   padding: 8,
@@ -103,7 +154,6 @@ export default class TipsOptionSwiper extends React.Component {
                   margin: TIPS_OPTION_MARGIN,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  backgroundColor: 'salmon'
                 }}>
                 <Text
                   style={isSelected ? styles.selectedOptionText : styles.nonSelectedOptionText
@@ -122,14 +172,14 @@ export default class TipsOptionSwiper extends React.Component {
             height: 4,
             width: 4,
             borderRadius: 4,
-            backgroundColor: dotIndex === 0 ? '#ddd' : '#eef',
+            backgroundColor: dotIndex === 0 ? '#bbc' : '#eef',
             margin: 2,
           }}/>
           <View style={{
             height: 4,
             width: 4,
             borderRadius: 4,
-            backgroundColor: dotIndex === 1 ? '#ddd' : '#eef',
+            backgroundColor: dotIndex === 1 ? '#bbc' : '#eef',
             margin: 2,
           }}/>
         </View>}
