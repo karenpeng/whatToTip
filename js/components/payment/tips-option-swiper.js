@@ -10,7 +10,7 @@ import idx from 'idx';
 
 import {TIPS_OPTIONS} from '../../utils/payment-calculator';
 
-const TIPS_OPTION_MARGIN = 4;
+const TIPS_OPTION_MARGIN = 6;
 
 const styles = StyleSheet.create({
   selectedOptionText: {
@@ -71,7 +71,6 @@ export default class TipsOptionSwiper extends React.Component {
       nonSelectedOptionWidth: null,
       viewWidth: null,
       selectedIndex: getSelectedIndex(this.props.selectedTipOption),
-      dotIndex: -1,
     };
   }
 
@@ -95,12 +94,10 @@ export default class TipsOptionSwiper extends React.Component {
   };
 
   adjustScroll = params => {
-    if (this.state.dotIndex === 0 && shouldScrollRight(params)) {
+    if (shouldScrollRight(params)) {
       this.scrollView.scrollToEnd();
-      this.setState({ dotIndex: 1 });
-    } else if (this.state.dotIndex === 1 && shouldScrollLeft(params)) {
+    } else if (shouldScrollLeft(params)) {
       this.scrollView.scrollTo({x: 0, y : 0, animated: true});
-      this.setState({ dotIndex: 0 });
     }
   };
 
@@ -110,20 +107,12 @@ export default class TipsOptionSwiper extends React.Component {
     if (!needsScroll(params)) {
       return;
     }
-    this.setState({ dotIndex: 0 });
-    this.adjustScroll({ ...params, dotIndex: 0 });
+    this.adjustScroll(params);
   };
 
   onOptionSelect = option => async() => {
     await this.props.onTipOptionSelect(option);
     this.adjustScroll({ ...this.state, selectedIndex: getSelectedIndex(option) });
-  }
-
-  onScroll = event => {
-    console.log(event.nativeEvent)
-    const offset = idx(event, _ => _.nativeEvent.contentOffset.x);
-    const width = idx(event, _ => _.nativeEvent.layoutMeasurement.width);
-    console.log(this.state)
   }
 
   render() {
@@ -134,7 +123,6 @@ export default class TipsOptionSwiper extends React.Component {
         onLayout={this.onWholeLayout}
         style={{ flex: 1, alignItems: 'center', }}>
         <ScrollView
-          onScroll={this.onScroll}
           ref={this.saveRef}
           showsHorizontalScrollIndicator={false}
           horizontal
@@ -164,25 +152,6 @@ export default class TipsOptionSwiper extends React.Component {
             );
           })}
         </ScrollView>
-        {dotIndex > -1 && <View style={{
-          flex: 1,
-          flexDirection: 'row',
-        }}>
-          <View style={{
-            height: 4,
-            width: 4,
-            borderRadius: 4,
-            backgroundColor: dotIndex === 0 ? '#bbc' : '#eef',
-            margin: 2,
-          }}/>
-          <View style={{
-            height: 4,
-            width: 4,
-            borderRadius: 4,
-            backgroundColor: dotIndex === 1 ? '#bbc' : '#eef',
-            margin: 2,
-          }}/>
-        </View>}
       </View>
 
     );
