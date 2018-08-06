@@ -43,6 +43,7 @@ const needsScroll = params =>
     );
   });
 
+// TODO: modify this algorithm
 const shouldScrollRight = params =>
   calculateWithparams(params, params => {
     const { selectedoptionWidth, nonSelectedOptionWidth, viewWidth, selectedIndex } = params;
@@ -53,6 +54,7 @@ const shouldScrollRight = params =>
     );
   });
 
+// TODO: modify this algorithm
 const shouldScrollLeft = params =>
   calculateWithparams(params, params => {
     const { selectedoptionWidth, nonSelectedOptionWidth, viewWidth, selectedIndex } = params;

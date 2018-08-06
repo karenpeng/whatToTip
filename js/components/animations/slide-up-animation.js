@@ -23,13 +23,12 @@ export default class SlideUpAnimation extends React.Component {
   }
 
   render() {
-    let { slideUpAnim } = this.state;
     return (
       <Animated.View
         style={{
           ...this.props.style,
           position: 'absolute',
-          bottom: slideUpAnim,
+          bottom: this.state.slideUpAnim,
         }}
       >
         {this.props.children}
