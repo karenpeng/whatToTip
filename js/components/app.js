@@ -94,7 +94,6 @@ export default class WhatToTip extends React.Component {
   };
 
   onTipOptionSelect = async(tipOption) => {
-    console.log(tipOption)
     this.setState({ tipOption });
     try {
       await AsyncStorage.setItem(tipOptionKey, `${tipOption}`);
@@ -161,6 +160,17 @@ export default class WhatToTip extends React.Component {
     });
   };
 
+  handleResizeScanner = () => {
+    const { autoCaptureEnabled, result } = this.state;
+    if (autoCaptureEnabled && result === null) {
+      return;
+    }
+    this.setState({
+      result: null,
+      captureCounter: 0,
+    });
+  }
+
   render() {
     const { autoCaptureEnabled, result, cameraInited, tipOption } = this.state;
     return (
@@ -179,7 +189,7 @@ export default class WhatToTip extends React.Component {
           />
         </View>
         <TouchableOpacity
-          onPress={this.handleReset}
+          onPress={() => {}}
           style={styles.tapContent}>
           <Text style={styles.tapContentReminder}>
            {!cameraInited ? 'Align payment total with the frame' :
@@ -193,6 +203,8 @@ export default class WhatToTip extends React.Component {
           l={SCANNER_LEFT}
           t={SCANNER_TOP}
           isScanning={result === null}
+          onDragEnd={this.handleReset}
+          onDragStart={() => {}}
         />
         {!autoCaptureEnabled && result !== null &&
           <SlideUpAnimation

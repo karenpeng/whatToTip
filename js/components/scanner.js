@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import UpAndDownAnimation from './animations/up-and-down-animation';
+import Draggable from './draggable';
 
 const createStyle = data => {
   const { w, h, l, t } = data;
@@ -21,8 +22,8 @@ const createStyle = data => {
 
 // TODO: make it flexible for moving around
 export default class Scanner extends React.Component {
-
   render() {
+    const { isScanning, h, onDragStart, onDragEnd } = this.props;
     return (
       <View style={createStyle(this.props)}>
         <View style={{
@@ -31,26 +32,28 @@ export default class Scanner extends React.Component {
           height: '100%',
           backgroundColor: 'rgba(255, 255, 255, 0.3)',
         }}>
-          {this.props.isScanning && (
+          {isScanning && (
             <UpAndDownAnimation
               style={{
                 height: 1,
                 width: '100%',
                 backgroundColor: 'white',
               } }
-              height={this.props.h}>
+              height={h}>
             </UpAndDownAnimation>
           )}
-          <Image
-            source={require('../../images/top-left.png')}
-            style={{
-              position: 'absolute',
-              width: 20,
-              height: 20,
-              top: 0,
-              left: 0,
-            }}
-          />
+          <Draggable
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+          >
+            <Image
+              source={require('../../images/top-left.png')}
+              style={{
+                width: 20,
+                height: 20,
+              }}
+            />
+          </Draggable>
           <Image
             source={require('../../images/top-right.png')}
             style={{
