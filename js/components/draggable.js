@@ -5,6 +5,7 @@ import {
   PanResponder,
   Animated
 } from "react-native";
+import idx from 'idx';
 
 export default class Draggable extends React.Component {
   constructor(props) {
@@ -15,7 +16,7 @@ export default class Draggable extends React.Component {
   }
 
   componentDidMount() {
-    this._Val = {x: 0, y: 0};
+    this._val = {x: 0, y: 0};
     this.state.pan.addListener(value => this._val = value);
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (evt, gestureState) => true,
@@ -34,7 +35,6 @@ export default class Draggable extends React.Component {
 
         // The accumulated gesture distance since becoming responder is
         // gestureState.d{x,y}
-        console.log(evt)
         console.log(gestureState)
         Animated.event([null, { dx: this.state.pan.x, dy: this.state.pan.y }]);
         // adjusting delta value
@@ -44,18 +44,21 @@ export default class Draggable extends React.Component {
       onPanResponderRelease: (evt, gestureState) => {
         // The user has released all touches while this view is the
         // responder. This typically means a gesture has succeeded
-        props.onDragEnd();
+        //this.props.onDragEnd();
       },
     });
   }
 
   render() {
+    console.log(this.panResponder)
+    const panHandlers = idx(this, _ => _.panResponder.panHandlers);
     const panStyle = {
       transform: this.state.pan.getTranslateTransform()
     };
+    console.log(panStyle)
     return (
       <Animated.View
-        { ...this.state.panResponder.panHandlers }
+      {...panHandlers}
         style={panStyle}
       >
         {this.props.children}

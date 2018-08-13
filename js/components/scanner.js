@@ -46,13 +46,14 @@ export default class Scanner extends React.Component {
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
           >
-            <Image
+            {/* <Image
               source={require('../../images/top-left.png')}
               style={{
                 width: 20,
                 height: 20,
               }}
-            />
+            /> */}
+            <View style={{width:20, height: 20, backgroundColor: 'salmon'}}/>
           </Draggable>
           <Image
             source={require('../../images/top-right.png')}

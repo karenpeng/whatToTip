@@ -134,7 +134,7 @@ export default class WhatToTip extends React.Component {
     }
     this.disableAutoCapture();
     this.setState({
-      captureCounter: this.state.captureCounter + 1
+      captureCounter: this.state.captureCounter + 1,
     });
     const data = await this.camera.takePictureAsync(CAMERA_OPTIONS);
     cropImageAndGetBase64(
@@ -145,7 +145,8 @@ export default class WhatToTip extends React.Component {
         SCANNER_LEFT,
         SCANNER_TOP
       },
-      this.callGetVisionAndHandleResult);
+      this.callGetVisionAndHandleResult
+    );
   };
 
   handleReset = () => {
