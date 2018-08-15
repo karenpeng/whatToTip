@@ -3,7 +3,7 @@ import constants from '../../constants';
 
 const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${constants.apiKey}`;
 
-const getVision = (base64, cb) => {
+const getVisionResult = async(base64) => {
   const options = {
     method: 'POST',
     headers: {
@@ -14,27 +14,26 @@ const getVision = (base64, cb) => {
       requests: [
         {
           image: {
-            content: base64
+            content: base64,
           },
           features: [
             {
               type: 'TEXT_DETECTION',
-              maxResults: 10
+              maxResults: 10,
             }
           ]
         }
       ]
     })
   };
- fetch(apiUrl, options)
- .then((response) => response.json())
- .then((responseJson) => {
-   const text = idx(responseJson, _ => _.responses[0].fullTextAnnotation.text);
-   cb && cb(text);
- })
- .catch((error) => {
+  try {
+    const response = await fetch(apiUrl, options);
+    const responseJson = await response.json();
+    const result = idx(responseJson, _ => _.responses[0].fullTextAnnotation.text);
+    return result;
+  } catch(error){
    console.error(error);
- });
+  };
 };
 
-export default getVision;
+export default getVisionResult;

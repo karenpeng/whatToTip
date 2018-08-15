@@ -35,7 +35,7 @@ export default class Draggable extends React.Component {
 
         // The accumulated gesture distance since becoming responder is
         // gestureState.d{x,y}
-        console.log(gestureState)
+        //console.log(gestureState)
         Animated.event([null, { dx: this.state.pan.x, dy: this.state.pan.y }]);
         // adjusting delta value
         this.state.pan.setValue({ x:0, y:0})
@@ -50,12 +50,12 @@ export default class Draggable extends React.Component {
   }
 
   render() {
-    console.log(this.panResponder)
+    //console.log(this.panResponder)
     const panHandlers = idx(this, _ => _.panResponder.panHandlers);
     const panStyle = {
       transform: this.state.pan.getTranslateTransform()
     };
-    console.log(panStyle)
+    //console.log(panStyle)
     return (
       <Animated.View
       {...panHandlers}

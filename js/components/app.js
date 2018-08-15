@@ -16,8 +16,9 @@ import SlideUpAnimation from './animations/slide-up-animation';
 import { inputIsValid } from '../utils/payment-calculator';
 import accelerationObservable, {registerAccelerometerEvent} from '../utils/accelerometer';
 import cropImageAndGetBase64 from '../utils/image-processor';
-import getVision from '../utils/request';
+import getVisionResult from '../utils/request';
 import constants from '../../constants';
+import tryCatch from '../utils/try-catch';
 
 export const SCANNER_WIDTH = 100;
 export const SCANNER_HEIGHT = 50;
@@ -80,7 +81,7 @@ export default class WhatToTip extends React.Component {
   }
 
   onTipOptionLoad = async() => {
-    try {
+    tryCatch(async() => {
       const tipOptionResult = await AsyncStorage.getItem(tipOptionKey);
       if (typeof tipOptionResult === 'string') {
         const tipOption = parseFloat(tipOptionResult);
@@ -88,18 +89,14 @@ export default class WhatToTip extends React.Component {
           this.setState({ tipOption });
         }
       }
-    } catch (error) {
-     console.log(error);
-    }
+    });
   };
 
   onTipOptionSelect = async(tipOption) => {
     this.setState({ tipOption });
-    try {
+    tryCatch(async() => {
       await AsyncStorage.setItem(tipOptionKey, `${tipOption}`);
-    } catch (error) {
-      console.log(error);
-    }
+    });
   };
 
   disableAutoCapture = () => {
@@ -114,18 +111,22 @@ export default class WhatToTip extends React.Component {
     });
   };
 
-  callGetVisionAndHandleResult = base64 => {
-    //getVision(base64, this.handleResult);
-    this.handleResult('$123.56')
-  };
-
-  handleResult = result => {
-    if (!inputIsValid(result)) {
-      setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
-    } else {
-      this.setState({ result });
-      Vibration.vibrate(VIBRATION_DURATION);
-    }
+  getResultFromPicture = async(data) => {
+    tryCatch(async() => {
+      const base64 = await cropImageAndGetBase64(data, {
+        SCANNER_WIDTH,
+        SCANNER_HEIGHT,
+        SCANNER_LEFT,
+        SCANNER_TOP
+      });
+      const result = await getVisionResult(base64);
+      if (!inputIsValid(result)) {
+        setTimeout(this.enableAutoCapture, ENABLE_CAMERA_TIMEOUT);
+      } else {
+        this.setState({ result });
+        Vibration.vibrate(VIBRATION_DURATION);
+      }
+    });
   };
 
   autoTakePicture = async () => {
@@ -136,17 +137,10 @@ export default class WhatToTip extends React.Component {
     this.setState({
       captureCounter: this.state.captureCounter + 1,
     });
-    const data = await this.camera.takePictureAsync(CAMERA_OPTIONS);
-    cropImageAndGetBase64(
-      data,
-      {
-        SCANNER_WIDTH,
-        SCANNER_HEIGHT,
-        SCANNER_LEFT,
-        SCANNER_TOP
-      },
-      this.callGetVisionAndHandleResult
-    );
+    tryCatch(async() => {
+      const data = await this.camera.takePictureAsync(CAMERA_OPTIONS);
+      this.getResultFromPicture(data);
+    });
   };
 
   handleReset = () => {
